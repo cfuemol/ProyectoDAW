@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block content %}
+<h2>Iniciar sesión</h2>
+
+<form method="post">
+
+    <input type="email" name="email" placeholder="Correo electrónico" required>
+    <input type="password" name="password" placeholder="Contraseña" required>
+
+    <button type="submit">Entrar</button>
+</form>
+
+{% if get_flashed_messages() %}
+    <p style="color:red;">{{ get_flashed_messages()[0] }}</p>
+{% endif %}
+
+{% endblock %}
