@@ -28,10 +28,10 @@ def requiere_rol(*roles):
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form['email']
+        dni = request.form['dni']
         password = request.form['password']
 
-        usuario = Usuario.objects(email=email).first()
+        usuario = Usuario.objects(dni=dni).first()
 
         if usuario and usuario.check_password(password):
             
@@ -104,8 +104,36 @@ def register():
 
         flash("Usuario registrado exitosamente")
 
-    return render_template("register.html")
+    return render_template("admin/register.html")
 
+
+#*---------------------------------------------------
+#* LISTADO Y BORRADO DE USUARIOS (SÓLO ADMIN)
+#*---------------------------------------------------
+
+@app.route("/borrar_usuarios", methods=["GET"])
+@requiere_rol("administrador")
+def listar_usuarios():
+    # Obtener todos los usuarios para mostrarlos en la tabla
+    todos_usuarios = Usuario.objects()
+    return render_template("admin/borrar_usuarios.html", usuarios=todos_usuarios)
+
+@app.route("/borrar_usuario/<dni>", methods=["POST"])
+@requiere_rol("administrador")
+def borrar_usuario(dni):
+    # Evitar que el admin se borre a sí mismo
+    if dni == session.get('dni'):
+        flash("No puedes borrar tu propio usuario.")
+        return redirect(url_for("listar_usuarios"))
+
+    usuario_a_borrar = Usuario.objects(dni=dni).first()
+    if usuario_a_borrar:
+        usuario_a_borrar.delete()
+        flash(f"Usuario {usuario_a_borrar.nombre} borrado exitosamente.")
+    else:
+        flash("Usuario no encontrado.")
+        
+    return redirect(url_for("listar_usuarios"))
 
 #*---------------------------------
 #* ENDPOINTS POR ROL
@@ -114,22 +142,22 @@ def register():
 @app.route("/admin_dashboard")
 @requiere_rol("administrador")
 def admin_dashboard():
-    return render_template("admin_dashboard.html")
+    return render_template("admin/admin_dashboard.html")
 
 @app.route("/direccion_dashboard")
 @requiere_rol("direccion")
 def direccion_dashboard():
-    return render_template("direccion_dashboard.html")
+    return render_template("direccion/direccion_dashboard.html")
 
 @app.route("/profesional_dashboard")
 @requiere_rol("profesional")
 def profesional_dashboard():
-    return render_template("profesional_dashboard.html")
+    return render_template("profesional/profesional_dashboard.html")
 
 @app.route("/mostrador_dashboard")
 @requiere_rol("mostrador")
 def mostrador_dashboard():
-    return render_template("mostrador_dashboard.html")
+    return render_template("mostrador/mostrador_dashboard.html")
 
 
 #*----------------------------------------------------------------------

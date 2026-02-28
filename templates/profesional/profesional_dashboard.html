@@ -1,11 +1,15 @@
-{% extends "../base.html" %}
-{% block title %}Panel Profesional{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Panel Profesional{% endblock %} {%
+block nav %}
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="#">Mis turnos</a>
+    <a href="#">Solicitar cambio</a>
+  </div>
+  <div class="nav-actions">
+    <a href="/logout" class="btn-logout">Cerrar sesión</a>
+  </div>
+</nav>
+{% endblock %} {% block content %}
 <h2>Panel del Profesional</h2>
-
-<ul>
-    <li><a href="#">Mis turnos</a></li>
-    <li><a href="#">Solicitar cambio</a></li>
-</ul>
+<p>Consulta tus turnos y gestiona tus solicitudes.</p>
 {% endblock %}

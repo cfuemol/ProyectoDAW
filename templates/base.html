@@ -1,13 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="/static/css/styles_base.css">
-</head>
-<body>
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-</body>
+    <link rel="stylesheet" href="/static/css/styles_base.css" />
+  </head>
+  <body>
+    <!-- Botón de tema flotante persistente -->
+    <div class="theme-switch-wrapper">
+      <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">
+        <span class="icon">🌓</span>
+      </button>
+    </div>
+
+    <!-- Bloque para la barra de navegación específica de cada página -->
+    {% block nav %}{% endblock %}
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <script>
+      const toggleBtn = document.getElementById("theme-toggle");
+      const rootElement = document.documentElement;
+
+      // Comprobar si hay un tema guardado, sino usar oscuro por defecto
+      const savedTheme = localStorage.getItem("theme") || "dark";
+      rootElement.setAttribute("data-theme", savedTheme);
+
+      toggleBtn.addEventListener("click", () => {
+        const currentTheme = rootElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+        rootElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      });
+    </script>
+  </body>
 </html>
