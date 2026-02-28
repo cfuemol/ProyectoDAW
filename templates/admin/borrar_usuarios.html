@@ -1,0 +1,66 @@
+{% extends "base.html" %} {% block title %}Borrar Usuarios{% endblock %} {%
+block nav %}
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="/admin_dashboard">← Volver al Panel</a>
+    <a href="/register">Registrar Usuario</a>
+  </div>
+</nav>
+{% endblock %} {% block content %}
+<h2>Gestión de Usuarios</h2>
+<p>Listado de todos los usuarios registrados en el sistema.</p>
+
+<table
+  border="1"
+  cellpadding="10"
+  cellspacing="0"
+  style="margin-top: 20px; width: 100%; text-align: left"
+>
+  <thead>
+    <tr>
+      <th>DNI</th>
+      <th>Nombre y Apellidos</th>
+      <th>Categoría</th>
+      <th>Rol</th>
+      <th>Email</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in usuarios %}
+    <tr>
+      <td>{{ u.dni }}</td>
+      <td>{{ u.nombre }} {{ u.apellidos }}</td>
+      <td>{{ u.categoria }}</td>
+      <td>{{ u.rol | capitalize }}</td>
+      <td>{{ u.email }}</td>
+      <td>
+        <!-- Evitamos que el propio usuario que está logueado se borre a sí mismo -->
+        {% if u.dni != session.get('dni') %}
+        <form
+          action="/borrar_usuario/{{ u.dni }}"
+          method="POST"
+          onsubmit="
+            return confirm('¿Estás seguro de que deseas borrar este usuario?');
+          "
+        >
+          <button type="submit" style="color: red">Borrar</button>
+        </form>
+        {% else %}
+        <span style="color: gray">(Tu cuenta)</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="6" style="text-align: center">
+        No hay usuarios registrados.
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<br />
+<a href="/admin_dashboard">Volver al Panel</a>
+{% endblock %}

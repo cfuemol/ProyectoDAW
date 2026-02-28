@@ -12,6 +12,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+      #Con esta línea inicializamos la BBDD e introducimos varios usuarios      
+      - ./docker/mongo-init:/docker-entrypoint-initdb.d 
 
   mongo-express:
     image: mongo-express

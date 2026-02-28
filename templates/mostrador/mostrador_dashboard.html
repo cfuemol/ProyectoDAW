@@ -1,10 +1,14 @@
-{% extends "../base.html" %}
-{% block title %}Panel Mostrador{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Panel Mostrador{% endblock %} {%
+block nav %}
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="#">Consultar turnos</a>
+  </div>
+  <div class="nav-actions">
+    <a href="/logout" class="btn-logout">Cerrar sesión</a>
+  </div>
+</nav>
+{% endblock %} {% block content %}
 <h2>Panel de Mostrador</h2>
-
-<ul>
-    <li><a href="#">Consultar turnos</a></li>
-</ul>
+<p>Atención al público y consulta rápida de turnos.</p>
 {% endblock %}

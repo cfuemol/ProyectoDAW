@@ -1,0 +1,54 @@
+{% extends "base.html" %} {% block title %}Registrar Usuario{% endblock %} {%
+block nav %}
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="/admin_dashboard">← Volver al Panel</a>
+  </div>
+</nav>
+{% endblock %} {% block content %}
+<h2>Registrar Nuevo Usuario</h2>
+
+<form method="POST" action="/register">
+  <label for="dni">DNI:</label>
+  <input type="text" id="dni" name="dni" required /><br /><br />
+
+  <label for="nombre">Nombre:</label>
+  <input type="text" id="nombre" name="nombre" required /><br /><br />
+
+  <label for="apellidos">Apellidos:</label>
+  <input type="text" id="apellidos" name="apellidos" required /><br /><br />
+
+  <label for="categoria">Categoría:</label>
+  <input type="text" id="categoria" name="categoria" required /><br /><br />
+
+  <label for="centro_asignado">Centro Asignado:</label>
+  <input
+    type="text"
+    id="centro_asignado"
+    name="centro_asignado"
+    required
+  /><br /><br />
+
+  <label for="telefono">Teléfono:</label>
+  <input type="number" id="telefono" name="telefono" required /><br /><br />
+
+  <label for="email">Email:</label>
+  <input type="email" id="email" name="email" required /><br /><br />
+
+  <label for="password">Contraseña:</label>
+  <input type="password" id="password" name="password" required /><br /><br />
+
+  <label for="rol">Rol:</label>
+  <select id="rol" name="rol" required>
+    <option value="administrador">Administrador</option>
+    <option value="direccion">Dirección</option>
+    <option value="profesional">Profesional</option>
+    <option value="mostrador">Mostrador</option></select
+  ><br /><br />
+
+  <button type="submit">Registrar Usuario</button>
+</form>
+
+<br />
+<a href="/admin_dashboard">Volver al Panel</a>
+{% endblock %}

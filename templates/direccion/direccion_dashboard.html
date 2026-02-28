@@ -1,12 +1,16 @@
-{% extends "../base.html" %}
-{% block title %}Panel Dirección{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Panel Dirección{% endblock %} {%
+block nav %}
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="/register">Registrar usuario</a>
+    <a href="#">Gestión de turnos</a>
+    <a href="#">Cambios de turnos</a>
+  </div>
+  <div class="nav-actions">
+    <a href="/logout" class="btn-logout">Cerrar sesión</a>
+  </div>
+</nav>
+{% endblock %} {% block content %}
 <h2>Panel de Dirección</h2>
-
-<ul>
-    <li><a href="/register">Registrar usuario</a></li>
-    <li><a href="#">Gestión de turnos</a></li>
-    <li><a href="#">Cambios de turnos</a></li>
-</ul>
+<p>Gestiona el personal y los cuadrantes del centro.</p>
 {% endblock %}
