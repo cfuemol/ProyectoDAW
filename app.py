@@ -81,6 +81,16 @@ def register():
         email = request.form['email']
         password = request.form['password']
         rol = request.form['rol']
+        unidad_asignada = request.form['unidad_asignada']
+
+        #* Lógica especial para administradores
+        if rol == "administrador":
+            categoría = "Técnico Especialista en Informática"
+            unidad_asignada = "SAS"
+            centro_asignado = "Distrito Sanitario Granada Sur (SAS)"
+        
+        if unidad_asignada == "SAS":
+            centro_asignado = "Distrito Sanitario Granada Sur (SAS)"
 
         #* Validaciones
         if Usuario.objects(email=email).first():
@@ -94,6 +104,7 @@ def register():
             nombre=nombre,
             apellidos=apellidos,
             categoria=categoría,
+            unidad_asignada=unidad_asignada,
             centro_asignado=centro_asignado,
             telefono=int(telefono),
             email=email,
@@ -134,6 +145,47 @@ def borrar_usuario(dni):
         flash("Usuario no encontrado.")
         
     return redirect(url_for("listar_usuarios"))
+
+@app.route("/edit_usuario/<dni>", methods=["GET", "POST"])
+@requiere_rol("administrador")
+def editar_usuario(dni):
+    usuario = Usuario.objects(dni=dni).first()
+    if not usuario:
+        flash("Usuario no encontrado.")
+        return redirect(url_for("listar_usuarios"))
+
+    if request.method == "POST":
+        # Actualizar campos
+        usuario.nombre = request.form['nombre']
+        usuario.apellidos = request.form['apellidos']
+        usuario.categoria = request.form['categoria']
+        usuario.unidad_asignada = request.form['unidad_asignada']
+        
+        usuario.rol = request.form['rol']
+        usuario.centro_asignado = request.form['centro_asignado']
+        
+        #* Lógica especial para administradores
+        if usuario.rol == "administrador":
+            usuario.categoria = "Técnico Especialista en Informática"
+            usuario.unidad_asignada = "SAS"
+            usuario.centro_asignado = "Distrito Sanitario Granada Sur (SAS)"
+
+        if usuario.unidad_asignada == "SAS":
+            usuario.centro_asignado = "Distrito Sanitario Granada Sur (SAS)"
+        
+        usuario.telefono = int(request.form['telefono'])
+        usuario.email = request.form['email']
+        
+        # Opcional: Actualizar contraseña si se proporciona
+        new_password = request.form.get('password')
+        if new_password and new_password.strip():
+            usuario.set_password(new_password)
+            
+        usuario.save()
+        flash(f"Usuario {usuario.dni} actualizado correctamente.")
+        return redirect(url_for("listar_usuarios"))
+
+    return render_template("admin/edit_usuario.html", usuario=usuario)
 
 #*---------------------------------
 #* ENDPOINTS POR ROL

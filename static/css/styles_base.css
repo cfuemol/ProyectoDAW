@@ -42,12 +42,12 @@
 
 html {
     transition: background-color 0.4s ease;
-    height: 100%;
+    min-height: 100%;
     margin: 0;
     padding: 0;
 }
 
-/* Personalización de la barra de scroll */
+/* Scrollbar Customization */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -73,15 +73,15 @@ body {
     background-image: 
         radial-gradient(at 0% 0%, var(--bg-gradient-1) 0px, transparent 50%),
         radial-gradient(at 100% 100%, var(--bg-gradient-2) 0px, transparent 50%);
+    background-attachment: fixed;
     color: var(--text-primary);
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    height: 100%;
     margin: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scroll on body if possible */
 }
 
 /* Barra de navegación superior */
@@ -211,15 +211,15 @@ main {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--panel-border);
-    padding: 40px;
+    padding: clamp(20px, 5vw, 40px);
     border-radius: 16px;
-    width: 100%;
-    max-width: 500px;
+    width: 90%;
+    max-width: 1200px;
+    margin: 5vh auto;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, border-color 0.3s ease;
-    /* Espacio respecto al nav o al top si no hay nav */
-    margin-top: 5vh;
-    margin-bottom: 5vh;
+    box-sizing: border-box;
+    overflow-x: auto;
 }
 
 main:hover {
@@ -364,11 +364,18 @@ th {
 }
 
 tbody tr {
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
 }
 
 tbody tr:hover {
-    background: rgba(128, 128, 128, 0.05);
+    background: var(--accent-glow);
+    transform: scale(1.005);
+    box-shadow: inset 0 0 10px var(--accent-glow);
+    color: var(--accent-hover);
+}
+
+tbody tr:hover td {
+    border-color: var(--accent-glow);
 }
 
 tbody tr:last-child td {
@@ -411,3 +418,20 @@ td button:hover {
 /* Utilidades texto */
 .danger-text { color: var(--danger-color); }
 .success-text { color: #10b981; }
+
+.btn-edit {
+    padding: 6px 12px;
+    border: 1px solid var(--accent-color);
+    border-radius: 8px;
+    color: var(--accent-color) !important;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-edit:hover {
+    background: var(--accent-color);
+    color: white !important;
+    box-shadow: 0 0 10px var(--accent-glow);
+}

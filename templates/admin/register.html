@@ -9,6 +9,15 @@ block nav %}
 <h2>Registrar Nuevo Usuario</h2>
 
 <form method="POST" action="/register">
+  <label for="rol">Rol:</label>
+  <select id="rol" name="rol" required>
+    <option value="">Selecciona un rol</option>
+    <option value="administrador">Administrador</option>
+    <option value="direccion">Dirección</option>
+    <option value="profesional">Profesional</option>
+    <option value="mostrador">Mostrador</option></select
+  ><br /><br />
+
   <label for="dni">DNI:</label>
   <input type="text" id="dni" name="dni" required /><br /><br />
 
@@ -19,15 +28,45 @@ block nav %}
   <input type="text" id="apellidos" name="apellidos" required /><br /><br />
 
   <label for="categoria">Categoría:</label>
-  <input type="text" id="categoria" name="categoria" required /><br /><br />
+  <select id="categoria" name="categoria" required>
+    <option value="Médico/a">Médico/a</option>
+    <option value="DUE">DUE</option>
+    <option value="TCAE">TCAE</option>
+    <option value="Aux Administrativo/a">Aux Administrativo/a</option>
+    <option value="Administrativo/a">Administrativo/a</option>
+    <option value="Celador/a-Conductor/a">Celador/a-Conductor/a</option>
+    <option value="Técnico/a de Rayos">Técnico/a de Rayos</option>
+    <option value="Odontólogo/a">Odontólogo/a</option>
+    <option value="Trabajador/a Social">Trabajador/a Social</option>
+    <option value="Fisioterapeuta">Fisioterapeuta</option>
+    <option value="Matrón/a">Matrón/a</option></select
+  ><br /><br />
+
+  <label for="unidad_asignada">Unidad Asignada:</label>
+  <select id="unidad_asignada" name="unidad_asignada" required>
+    <option value="ZBS Albuñol">ZBS Albuñol</option>
+    <option value="ZBS Motril">ZBS Motril</option>
+    <option value="Dispositivo Apoyo Granada">Dispositivo Apoyo Granada</option>
+    <option value="ZBS Almuñecar">ZBS Almuñecar</option></select
+  ><br /><br />
 
   <label for="centro_asignado">Centro Asignado:</label>
-  <input
-    type="text"
-    id="centro_asignado"
-    name="centro_asignado"
-    required
-  /><br /><br />
+  <select id="centro_asignado" name="centro_asignado" required>
+    <option value="Albuñol">Albuñol</option>
+    <option value="Albondón">Albondón</option>
+    <option value="Alfornón">Alfornón</option>
+    <option value="El Pozuelo">El Pozuelo</option>
+    <option value="La Rábita">La Rábita</option>
+    <option value="Los Castillas">Los Castillas</option>
+    <option value="Polopos">Polopos</option>
+    <option value="Sorvilán">Sorvilán</option>
+    <option value="Dispositivo Apoyo Granada Sur">
+      Dispositivo Apoyo Granada Sur
+    </option>
+    <option value="Distrito Sanitario Granada Sur (SAS)">
+      Distrito Sanitario Granada Sur (SAS)
+    </option></select
+  ><br /><br />
 
   <label for="telefono">Teléfono:</label>
   <input type="number" id="telefono" name="telefono" required /><br /><br />
@@ -38,17 +77,91 @@ block nav %}
   <label for="password">Contraseña:</label>
   <input type="password" id="password" name="password" required /><br /><br />
 
-  <label for="rol">Rol:</label>
-  <select id="rol" name="rol" required>
-    <option value="administrador">Administrador</option>
-    <option value="direccion">Dirección</option>
-    <option value="profesional">Profesional</option>
-    <option value="mostrador">Mostrador</option></select
-  ><br /><br />
-
   <button type="submit">Registrar Usuario</button>
 </form>
+<script>
+  const rolSelect = document.getElementById("rol");
+  const categoriaSelect = document.getElementById("categoria");
+  const unidadAsignadaSelect = document.getElementById("unidad_asignada");
+  const centroAsignadoSelect = document.getElementById("centro_asignado");
 
-<br />
-<a href="/admin_dashboard">Volver al Panel</a>
+  const ADMIN_CAT = "Técnico Especialista en Informática";
+  const ADMIN_UNIDAD = "SAS";
+  const ADMIN_CENTRO = "Distrito Sanitario Granada Sur (SAS)";
+
+  function updateAdminFields() {
+    // Limpiar opciones previas si no es admin
+    if (rolSelect.value !== "administrador") {
+      Array.from(categoriaSelect.options).forEach((opt) => {
+        if (opt.value === ADMIN_CAT) opt.remove();
+      });
+      Array.from(unidadAsignadaSelect.options).forEach((opt) => {
+        if (opt.value === ADMIN_UNIDAD) opt.remove();
+      });
+      Array.from(centroAsignadoSelect.options).forEach((opt) => {
+        if (opt.value === ADMIN_CENTRO) opt.remove();
+      });
+
+      categoriaSelect.removeAttribute("readonly");
+      unidadAsignadaSelect.removeAttribute("readonly");
+      centroAsignadoSelect.removeAttribute("readonly");
+
+      // Mostrar Dispositivo Apoyo Granada Sur para otros roles
+      Array.from(centroAsignadoSelect.options).forEach((opt) => {
+        if (opt.value === "Dispositivo Apoyo Granada Sur")
+          opt.style.display = "";
+      });
+    } else {
+      // Es administrador
+      if (
+        !Array.from(categoriaSelect.options).some(
+          (opt) => opt.value === ADMIN_CAT,
+        )
+      ) {
+        const opt = document.createElement("option");
+        opt.value = ADMIN_CAT;
+        opt.text = ADMIN_CAT;
+        categoriaSelect.add(opt);
+      }
+      categoriaSelect.value = ADMIN_CAT;
+
+      if (
+        !Array.from(unidadAsignadaSelect.options).some(
+          (opt) => opt.value === ADMIN_UNIDAD,
+        )
+      ) {
+        const opt = document.createElement("option");
+        opt.value = ADMIN_UNIDAD;
+        opt.text = ADMIN_UNIDAD;
+        unidadAsignadaSelect.add(opt);
+      }
+      unidadAsignadaSelect.value = ADMIN_UNIDAD;
+
+      if (
+        !Array.from(centroAsignadoSelect.options).some(
+          (opt) => opt.value === ADMIN_CENTRO,
+        )
+      ) {
+        const opt = document.createElement("option");
+        opt.value = ADMIN_CENTRO;
+        opt.text = ADMIN_CENTRO;
+        centroAsignadoSelect.add(opt);
+      }
+      centroAsignadoSelect.value = ADMIN_CENTRO;
+
+      // Ocultar Dispositivo Apoyo Granada Sur para admin
+      Array.from(centroAsignadoSelect.options).forEach((opt) => {
+        if (opt.value === "Dispositivo Apoyo Granada Sur")
+          opt.style.display = "none";
+      });
+
+      categoriaSelect.setAttribute("readonly", true);
+      unidadAsignadaSelect.setAttribute("readonly", true);
+      centroAsignadoSelect.setAttribute("readonly", true);
+    }
+  }
+
+  rolSelect.addEventListener("change", updateAdminFields);
+  updateAdminFields(); // Inicializar
+</script>
 {% endblock %}

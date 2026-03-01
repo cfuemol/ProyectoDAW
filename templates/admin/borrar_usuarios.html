@@ -10,12 +10,7 @@ block nav %}
 <h2>Gestión de Usuarios</h2>
 <p>Listado de todos los usuarios registrados en el sistema.</p>
 
-<table
-  border="1"
-  cellpadding="10"
-  cellspacing="0"
-  style="margin-top: 20px; width: 100%; text-align: left"
->
+<table>
   <thead>
     <tr>
       <th>DNI</th>
@@ -35,19 +30,28 @@ block nav %}
       <td>{{ u.rol | capitalize }}</td>
       <td>{{ u.email }}</td>
       <td>
+        <!-- Botón Editar -->
+        <a
+          href="/edit_usuario/{{ u.dni }}"
+          class="btn-edit"
+          style="margin-right: 10px; display: inline-block"
+          >Editar</a
+        >
+
         <!-- Evitamos que el propio usuario que está logueado se borre a sí mismo -->
         {% if u.dni != session.get('dni') %}
         <form
           action="/borrar_usuario/{{ u.dni }}"
           method="POST"
+          style="display: inline-block"
           onsubmit="
             return confirm('¿Estás seguro de que deseas borrar este usuario?');
           "
         >
-          <button type="submit" style="color: red">Borrar</button>
+          <button type="submit">Borrar</button>
         </form>
         {% else %}
-        <span style="color: gray">(Tu cuenta)</span>
+        <span style="color: var(--text-secondary)">(Tu cuenta)</span>
         {% endif %}
       </td>
     </tr>
@@ -60,7 +64,4 @@ block nav %}
     {% endfor %}
   </tbody>
 </table>
-
-<br />
-<a href="/admin_dashboard">Volver al Panel</a>
 {% endblock %}

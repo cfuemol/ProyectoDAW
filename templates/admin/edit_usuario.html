@@ -1,0 +1,126 @@
+{% extends "base.html" %} 
+{% block title %}Editar Usuario{% endblock %} 
+
+{% block nav %}
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="/borrar_usuarios">← Volver al Listado</a>
+  </div>
+</nav>
+{% endblock %} 
+
+{% block content %}
+<h2>Editar Usuario: {{ usuario.dni }}</h2>
+
+<form method="POST" action="/edit_usuario/{{ usuario.dni }}">
+  <label for="dni">DNI (No editable):</label>
+  <input type="text" id="dni" value="{{ usuario.dni }}" disabled /><br /><br />
+
+  <label for="nombre">Nombre:</label>
+  <input type="text" id="nombre" name="nombre" value="{{ usuario.nombre }}" required /><br /><br />
+
+  <label for="apellidos">Apellidos:</label>
+  <input type="text" id="apellidos" name="apellidos" value="{{ usuario.apellidos }}" required /><br /><br />
+
+  <label for="categoria">Categoría:</label>
+  <select id="categoria" name="categoria" required>
+    {% set cats = ["Médico/a", "DUE", "TCAE", "Aux Administrativo/a", "Administrativo/a", "Celador/a-Conductor/a", "Técnico/a de Rayos", "Odontólogo/a", "Trabajador/a Social", "Fisioterapeuta", "Matrón/a"] %}
+    {% for cat in cats %}
+    <option value="{{ cat }}" {{ 'selected' if usuario.categoria == cat else '' }}>{{ cat }}</option>
+    {% endfor %}
+  </select><br /><br />
+
+  <label for="unidad_asignada">Unidad Asignada:</label>
+  <select id="unidad_asignada" name="unidad_asignada" required>
+    {% set unidades = ['ZBS Albuñol', 'ZBS Motril', 'Dispositivo Apoyo Granada', 'ZBS Almuñecar'] %}
+    {% if usuario.unidad_asignada == 'SAS' %}
+    <option value="SAS" selected>SAS</option>
+    {% endif %}
+    {% for unidad in unidades %}
+    <option value="{{ unidad }}" {{ 'selected' if usuario.unidad_asignada == unidad else '' }}>{{ unidad }}</option>
+    {% endfor %}
+  </select><br /><br />
+
+  <label for="centro_asignado">Centro Asignado:</label>
+  <select id="centro_asignado" name="centro_asignado" required>
+    {% set centros = ['Albuñol', 'Albondón', 'Alfornón', 'El Pozuelo', 'La Rábita', 'Los Castillas', 'Polopos', 'Sorvilán', 'Distrito Granada Sur'] %}
+    {% for centro in centros %}
+    <option value="{{ centro }}" {{ 'selected' if usuario.centro_asignado == centro else '' }}>{{ centro }}</option>
+    {% endfor %}
+  </select><br /><br />
+
+  <label for="telefono">Teléfono:</label>
+  <input type="number" id="telefono" name="telefono" value="{{ usuario.telefono }}" required /><br /><br />
+
+  <label for="email">Email:</label>
+  <input type="email" id="email" name="email" value="{{ usuario.email }}" required /><br /><br />
+
+  <label for="rol">Rol:</label>
+  <select id="rol" name="rol" required>
+    <option value="administrador" {{ 'selected' if usuario.rol == 'administrador' else '' }}>Administrador</option>
+    <option value="direccion" {{ 'selected' if usuario.rol == 'direccion' else '' }}>Dirección</option>
+    <option value="profesional" {{ 'selected' if usuario.rol == 'profesional' else '' }}>Profesional</option>
+    <option value="mostrador" {{ 'selected' if usuario.rol == 'mostrador' else '' }}>Mostrador</option>
+  </select><br /><br />
+
+  <button type="submit">Actualizar Usuario</button>
+</form>
+
+<script>
+  const rolSelect = document.getElementById("rol");
+  const categoriaSelect = document.getElementById("categoria");
+  const unidadAsignadaSelect = document.getElementById("unidad_asignada");
+  const centroAsignadoSelect = document.getElementById("centro_asignado");
+
+  const ADMIN_CAT = "Técnico Especialista en Informática";
+  const ADMIN_UNIDAD = "SAS";
+  const ADMIN_CENTRO = "Distrito Sanitario Granada Sur (SAS)";
+
+  function updateAdminFields() {
+    if (rolSelect.value === "administrador") {
+      // Es administrador
+      if (!Array.from(categoriaSelect.options).some(opt => opt.value === ADMIN_CAT)) {
+        const opt = document.createElement("option");
+        opt.value = ADMIN_CAT; opt.text = ADMIN_CAT;
+        categoriaSelect.add(opt);
+      }
+      categoriaSelect.value = ADMIN_CAT;
+
+      if (!Array.from(unidadAsignadaSelect.options).some(opt => opt.value === ADMIN_UNIDAD)) {
+        const opt = document.createElement("option");
+        opt.value = ADMIN_UNIDAD; opt.text = ADMIN_UNIDAD;
+        unidadAsignadaSelect.add(opt);
+      }
+      unidadAsignadaSelect.value = ADMIN_UNIDAD;
+
+      if (!Array.from(centroAsignadoSelect.options).some(opt => opt.value === ADMIN_CENTRO)) {
+        const opt = document.createElement("option");
+        opt.value = ADMIN_CENTRO; opt.text = ADMIN_CENTRO;
+        centroAsignadoSelect.add(opt);
+      }
+      centroAsignadoSelect.value = ADMIN_CENTRO;
+
+      // Ocultar Dispositivo Apoyo Granada Sur para admin
+      Array.from(centroAsignadoSelect.options).forEach(opt => {
+        if (opt.value === "Dispositivo Apoyo Granada Sur") opt.style.display = "none";
+      });
+
+      categoriaSelect.setAttribute("readonly", true);
+      unidadAsignadaSelect.setAttribute("readonly", true);
+      centroAsignadoSelect.setAttribute("readonly", true);
+    } else {
+      // Mostrar Dispositivo Apoyo Granada Sur para otros roles
+      Array.from(centroAsignadoSelect.options).forEach(opt => {
+        if (opt.value === "Dispositivo Apoyo Granada Sur") opt.style.display = "";
+      });
+
+      categoriaSelect.removeAttribute("readonly");
+      unidadAsignadaSelect.removeAttribute("readonly");
+      centroAsignadoSelect.removeAttribute("readonly");
+    }
+  }
+
+  rolSelect.addEventListener("change", updateAdminFields);
+  updateAdminFields();
+</script>
+{% endblock %}
