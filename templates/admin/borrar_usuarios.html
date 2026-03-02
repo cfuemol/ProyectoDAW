@@ -13,28 +13,30 @@ block nav %}
 <table>
   <thead>
     <tr>
-      <th>DNI</th>
-      <th>Nombre y Apellidos</th>
-      <th>Categoría</th>
-      <th>Rol</th>
+      <th class="col-min">DNI</th>
+      <th class="col-name">Nombre y Apellidos</th>
+      <th class="col-min">Categoría</th>
+      <th class="col-min">Rol</th>
       <th>Email</th>
-      <th>Acciones</th>
+      <th class="actions-cell">Acciones</th>
     </tr>
   </thead>
   <tbody>
     {% for u in usuarios %}
     <tr>
-      <td>{{ u.dni }}</td>
-      <td>{{ u.nombre }} {{ u.apellidos }}</td>
-      <td>{{ u.categoria }}</td>
-      <td>{{ u.rol | capitalize }}</td>
-      <td>{{ u.email }}</td>
-      <td>
+      <td class="col-min" data-label="DNI">{{ u.dni }}</td>
+      <td class="col-name" data-label="Nombre y Apellidos">
+        {{ u.nombre }} {{ u.apellidos }}
+      </td>
+      <td class="col-min" data-label="Categoría">{{ u.categoria }}</td>
+      <td class="col-min" data-label="Rol">{{ u.rol | capitalize }}</td>
+      <td data-label="Email">{{ u.email }}</td>
+      <td class="actions-cell" data-label="Acciones">
         <!-- Botón Editar -->
         <a
           href="/edit_usuario/{{ u.dni }}"
           class="btn-edit"
-          style="margin-right: 10px; display: inline-block"
+          style="margin-right: 8px; display: inline-block"
           >Editar</a
         >
 
@@ -51,7 +53,9 @@ block nav %}
           <button type="submit">Borrar</button>
         </form>
         {% else %}
-        <span style="color: var(--text-secondary)">(Tu cuenta)</span>
+        <span style="color: var(--text-secondary); font-size: 0.8rem"
+          >(Tú)</span
+        >
         {% endif %}
       </td>
     </tr>
