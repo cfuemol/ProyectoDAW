@@ -95,7 +95,6 @@ def validar_dni_nie(documento):
 @requiere_rol("administrador", "direccion")
 def register():
     if request.method == "POST":
-        print(f"DEBUG: Entrando en POST register para {request.form.get('dni')}")
         dni = request.form['dni'].strip().upper()
         nombre = request.form['nombre'].strip()
         apellidos = request.form['apellidos'].strip()
@@ -106,8 +105,6 @@ def register():
         password = request.form['password']
         rol = request.form['rol']
         unidad_asignada = request.form['unidad_asignada']
-
-        print(f"DEBUG: Datos recibidos - Nombre: {nombre}, Pass: {password}")
 
         #* Validaciones de formato
         if not validar_dni_nie(dni):
