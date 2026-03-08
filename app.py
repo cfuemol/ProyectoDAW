@@ -1,7 +1,12 @@
-from flask import Flask, render_template, request, redirect, session, url_for, flash
+from flask import Flask, render_template, request, redirect, session, url_for, flash, send_file
 import os
+import io
+from datetime import datetime, timedelta
+from fpdf import FPDF
 from models.database import init_db
 from models.usuario import Usuario
+from models.turno import Turno
+from models.cambio import Cambio
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret-key'
@@ -131,7 +136,24 @@ def register():
             flash("El nombre y los apellidos deben tener al menos 6 caracteres, empezar/terminar con letra y solo contener letras/espacios.", "error")
             return redirect(url_for('register'))
 
-        #* Lógica especial para administradores
+        #* Lógica especial por rol que registra
+        es_direccion = session.get('rol') == 'direccion'
+
+        if es_direccion:
+            if rol in ['administrador', 'direccion']:
+                flash("No tienes permisos para asignar este rol.", "error")
+                return redirect(url_for('register'))
+            
+            # Restricción de unidad para Dirección
+            if unidad_asignada not in ['ZBS Albuñol', 'Dispositivo Apoyo Granada Sur']:
+                flash("La unidad asignada no es válida para tu rol.", "error")
+                return redirect(url_for('register'))
+            
+            # Forzado de centro si es Dispositivo
+            if unidad_asignada == 'Dispositivo Apoyo Granada Sur':
+                centro_asignado = 'Dispositivo Apoyo Granada Sur'
+
+        #* Lógica especial para administradores registrados
         if rol == "administrador":
             categoría = "Técnico Especialista en Informática"
             unidad_asignada = "SAS"
@@ -265,6 +287,208 @@ def profesional_dashboard():
 def mostrador_dashboard():
     return render_template("mostrador/mostrador_dashboard.html")
 
+#*---------------------------------------------------
+#* GESTIÓN DE TURNOS (SÓLO DIRECCIÓN)
+#*---------------------------------------------------
+
+@app.route("/gestion_turnos", methods=["GET", "POST"])
+@requiere_rol("direccion")
+def gestion_turnos():
+    if request.method == "POST":
+        profesionales_dnis = request.form.getlist('profesional_dni[]')
+        fechas_str = request.form.getlist('fecha[]')
+        tipos = request.form.getlist('tipo[]')
+
+        exitos = 0
+        errores = 0
+
+        for dni, fecha_s, tipo in zip(profesionales_dnis, fechas_str, tipos):
+            if not dni or not fecha_s or not tipo:
+                continue
+                
+            profesional = Usuario.objects(dni=dni).first()
+            if not profesional:
+                errores += 1
+                continue
+
+            try:
+                fecha = datetime.strptime(fecha_s, '%Y-%m-%d')
+                
+                # Validar descanso post-guardia (Día anterior 17h o 24h)
+                dia_anterior = fecha - timedelta(days=1)
+                turno_previo = Turno.objects(profesional=profesional, fecha=dia_anterior).first()
+                if turno_previo and turno_previo.tipo in ["17h", "24h"]:
+                    flash(f"Error: {profesional.nombre} {profesional.apellidos} realizó una guardia el {dia_anterior.strftime('%d/%m/%Y')} y debe descansar el {fecha.strftime('%d/%m/%Y')}.", "error")
+                    errores += 1
+                    continue
+
+                # RESTRICCIONES POR CATEGORÍA
+                categorias_consulta = ["TCAE", "Aux Administrativo/a", "Administrativo/a", "Técnico/a de Rayos", "Odontólogo/a", "Trabajador/a Social", "Fisioterapeuta", "Matrón/a"]
+                if profesional.categoria in categorias_consulta:
+                    if fecha.weekday() in [5, 6]:
+                        flash(f"Error: {profesional.nombre} ({profesional.categoria}) solo trabaja de Lunes a Viernes.", "error")
+                        errores += 1
+                        continue
+                    if tipo != "7h":
+                        flash(f"Error: {profesional.nombre} ({profesional.categoria}) solo puede realizar turnos de 7h.", "error")
+                        errores += 1
+                        continue
+
+                # RESTRICCIÓN FIN DE SEMANA GENERAL (SÓLO 24H)
+                if fecha.weekday() in [5, 6] and tipo != "24h":
+                    flash(f"Error: El día {fecha.strftime('%d/%m/%Y')} es fin de semana. Solo se permiten turnos de 24h.", "error")
+                    errores += 1
+                    continue
+
+                # Celadores: Solo 24h
+                if profesional.categoria == "Celador/a-Conductor/a" and tipo != "24h":
+                    flash(f"Error: {profesional.nombre} es Celador/a y solo puede realizar turnos de 24h.", "error")
+                    errores += 1
+                    continue
+
+                # NO permitir si ya existe un turno este día (REQUISITO NUEVO)
+                turno_existente = Turno.objects(profesional=profesional, fecha=fecha).first()
+                if turno_existente:
+                    flash(f"Error: {profesional.nombre} ya tiene un turno ({turno_existente.tipo}) asignado para el {fecha.strftime('%d/%m/%Y')}. Usa el botón de modificar si quieres cambiarlo.", "error")
+                    errores += 1
+                    continue
+                
+                turno = Turno(
+                    profesional=profesional,
+                    fecha=fecha,
+                    tipo=tipo
+                )
+                turno.save()
+                exitos += 1
+            except Exception:
+                errores += 1
+
+        if exitos > 0:
+            flash(f"Se han procesado {exitos} turnos correctamente.", "success")
+        if errores > 0:
+            flash(f"Hubo errores en {errores} turnos.", "error")
+
+    # Obtener profesionales para el select
+    profesionales = Usuario.objects(rol__in=['profesional', 'mostrador'])
+    # Obtener todos los turnos para mostrar el cuadrante
+    turnos = Turno.objects().order_by('fecha')
+    
+    return render_template("direccion/gestion_turnos.html", profesionales=profesionales, turnos=turnos)
+
+@app.route("/notificaciones_cambios")
+@requiere_rol("direccion")
+def notificaciones_cambios():
+    # Obtener todos los cambios de turno registrados
+    cambios = Cambio.objects().order_by('-fecha_original')
+    return render_template("direccion/notificaciones_cambios.html", cambios=cambios)
+
+@app.route("/descargar_pdf_dia")
+@requiere_rol("direccion")
+def descargar_pdf_dia():
+    hoy = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    turnos_hoy = Turno.objects(fecha=hoy)
+
+    if not turnos_hoy:
+        flash("No hay turnos registrados para hoy.", "info")
+        return redirect(url_for('direccion_dashboard'))
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("helvetica", "B", 16)
+    pdf.cell(190, 10, f"Trabajadores con turno hoy: {hoy.strftime('%d/%m/%Y')}", align="C")
+    pdf.ln(10)
+
+    pdf.set_font("helvetica", "B", 9)
+    pdf.cell(35, 10, "Nombre", 1)
+    pdf.cell(35, 10, "Apellidos", 1)
+    pdf.cell(35, 10, "Categoría", 1)
+    pdf.cell(25, 10, "Teléfono", 1)
+    pdf.cell(20, 10, "Turno", 1)
+    pdf.cell(35, 10, "Centro", 1)
+    pdf.ln()
+
+    pdf.set_font("helvetica", "", 8)
+    for turno in turnos_hoy:
+        pdf.cell(35, 10, turno.profesional.nombre, 1)
+        pdf.cell(35, 10, turno.profesional.apellidos, 1)
+        pdf.cell(35, 10, turno.profesional.categoria, 1)
+        pdf.cell(25, 10, str(turno.profesional.telefono), 1)
+        pdf.cell(20, 10, turno.tipo, 1)
+        
+        # Lógica de ubicación 24h L-V
+        if turno.tipo == "24h" and turno.fecha.weekday() < 5:
+            centro = f"{turno.profesional.centro_asignado} + Urgencias"
+        elif turno.tipo in ["17h", "24h"]:
+            centro = "Urgencias Albuñol"
+        else:
+            centro = turno.profesional.centro_asignado
+            
+        pdf.cell(35, 10, centro, 1)
+        pdf.ln()
+
+    # Generar el PDF en memoria
+    output = io.BytesIO()
+    pdf_content = pdf.output()
+    output.write(pdf_content)
+    output.seek(0)
+
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=f"turnos_{hoy.strftime('%Y%m%d')}.pdf",
+        mimetype="application/pdf"
+    )
+
+#*---------------------------------
+#* GESTIÓN DE TURNOS (BORRAR / MODIFICAR)
+#*---------------------------------
+
+@app.route('/borrar_turno/<turno_id>', methods=['POST'])
+@requiere_rol("direccion")
+def borrar_turno(turno_id):
+    try:
+        Turno.objects(id=turno_id).delete()
+        flash("Turno eliminado correctamente.", "success")
+    except Exception as e:
+        flash(f"Error al eliminar turno: {str(e)}", "error")
+    return redirect(url_for('gestion_turnos'))
+
+@app.route('/modificar_turno/<turno_id>', methods=['POST'])
+@requiere_rol("direccion")
+def modificar_turno(turno_id):
+    try:
+        nuevo_tipo = request.form.get('tipo')
+        turno_actual = Turno.objects(id=turno_id).first()
+        
+        if turno_actual:
+            # RESTRICCIONES POR CATEGORÍA
+            profesional = turno_actual.profesional
+            
+            # Categorías de Consulta: Solo 7h y L-V
+            categorias_consulta = ["TCAE", "Aux Administrativo/a", "Administrativo/a", "Técnico/a de Rayos", "Odontólogo/a", "Trabajador/a Social", "Fisioterapeuta", "Matrón/a"]
+            if profesional.categoria in categorias_consulta:
+                if turno_actual.fecha.weekday() in [5, 6]:
+                    flash(f"Error: {profesional.nombre} ({profesional.categoria}) solo trabaja de Lunes a Viernes.", "error")
+                    return redirect(url_for('gestion_turnos'))
+                if nuevo_tipo != "7h":
+                    flash(f"Error: {profesional.nombre} ({profesional.categoria}) solo puede realizar turnos de 7h.", "error")
+                    return redirect(url_for('gestion_turnos'))
+
+            # Validar fin de semana en modificación GENERAL (SÓLO 24H)
+            if turno_actual.fecha.weekday() in [5, 6] and nuevo_tipo != "24h":
+                flash(f"Error: El día {turno_actual.fecha.strftime('%d/%m/%Y')} es fin de semana. Solo se permiten turnos de 24h.", "error")
+                return redirect(url_for('gestion_turnos'))
+
+            # Celadores: Solo 24h
+            if profesional.categoria == "Celador/a-Conductor/a" and nuevo_tipo != "24h":
+                flash(f"Error: {profesional.nombre} es Celador/a y solo puede realizar turnos de 24h.", "error")
+                return redirect(url_for('gestion_turnos'))
+
+        Turno.objects(id=turno_id).update_one(set__tipo=nuevo_tipo)
+        flash("Turno modificado correctamente.", "success")
+    except Exception as e:
+        flash(f"Error al modificar turno: {str(e)}", "error")
+    return redirect(url_for('gestion_turnos'))
 
 #*----------------------------------------------------------------------
 #* MAIN (SOLO SE EJECUTARÁ CUANDO SE EJECUTE EL ARCHIVO DIRECTAMENTE)

@@ -3,14 +3,22 @@ block nav %}
 <nav class="top-nav">
   <div class="nav-links">
     <a href="/register">Registrar usuario</a>
-    <a href="#">Gestión de turnos</a>
-    <a href="#">Cambios de turnos</a>
+    <a href="/gestion_turnos">Gestión de turnos</a>
+    <a href="/notificaciones_cambios">Cambios de turnos</a>
   </div>
   <div class="nav-actions">
     <a href="/logout" class="btn-logout">Cerrar sesión</a>
+    <a
+      href="/descargar_pdf_dia"
+      class="btn-pdf-global"
+      title="Descargar Turnos Hoy"
+      >📄 PDF Hoy</a
+    >
   </div>
 </nav>
 {% endblock %} {% block content %}
-<h2>Panel de Dirección</h2>
-<p>Gestiona el personal y los cuadrantes del centro.</p>
+<div class="animate-in">
+  <h2>Panel de Dirección</h2>
+  <p>Gestiona el personal y los cuadrantes del centro.</p>
+</div>
 {% endblock %}

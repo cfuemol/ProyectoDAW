@@ -2,7 +2,14 @@
 block nav %}
 <nav class="top-nav">
   <div class="nav-links">
+    {% if session['rol'] == 'administrador' %}
     <a href="/admin_dashboard">← Volver al Panel</a>
+    {% elif session['rol'] == 'direccion' %}
+    <a href="/direccion_dashboard">← Volver al Panel</a>
+    {% endif %}
+  </div>
+  <div class="nav-actions">
+    <a href="/logout" class="btn-logout">Cerrar sesión</a>
   </div>
 </nav>
 {% endblock %} {% block content %}
@@ -12,8 +19,10 @@ block nav %}
   <label for="rol">Rol:</label>
   <select id="rol" name="rol" required>
     <option value="">Selecciona un rol</option>
+    {% if session['rol'] == 'administrador' %}
     <option value="administrador">Administrador</option>
     <option value="direccion">Dirección</option>
+    {% endif %}
     <option value="profesional">Profesional</option>
     <option value="mostrador">Mostrador</option></select
   ><br /><br />
@@ -63,9 +72,14 @@ block nav %}
   <label for="unidad_asignada">Unidad Asignada:</label>
   <select id="unidad_asignada" name="unidad_asignada" required>
     <option value="ZBS Albuñol">ZBS Albuñol</option>
+    <option value="Dispositivo Apoyo Granada Sur">
+      Dispositivo Apoyo Granada Sur
+    </option>
+    {% if session['rol'] == 'administrador' %}
     <option value="ZBS Motril">ZBS Motril</option>
     <option value="Dispositivo Apoyo Granada">Dispositivo Apoyo Granada</option>
-    <option value="ZBS Almuñecar">ZBS Almuñecar</option></select
+    <option value="ZBS Almuñecar">ZBS Almuñecar</option>
+    {% endif %}</select
   ><br /><br />
 
   <label for="centro_asignado">Centro Asignado:</label>
@@ -142,11 +156,15 @@ block nav %}
   const ADMIN_CENTRO = "Distrito Sanitario Granada Sur (SAS)";
 
   function updateAdminFields() {
+    const isDireccion = "{{ session['rol'] }}" === "direccion";
+
     // Limpiar opciones previas si no es admin
     if (rolSelect.value !== "administrador") {
       Array.from(categoriaSelect.options).forEach((opt) => {
         if (opt.value === ADMIN_CAT) opt.remove();
       });
+
+      // Si no es admin y el rol actual es Dirección, también quitamos SAS y Distrito
       Array.from(unidadAsignadaSelect.options).forEach((opt) => {
         if (opt.value === ADMIN_UNIDAD) opt.remove();
       });
@@ -211,7 +229,74 @@ block nav %}
       unidadAsignadaSelect.setAttribute("readonly", true);
       centroAsignadoSelect.setAttribute("readonly", true);
     }
+    handleCategoriaChange(); // Validar categoría tras cambio de rol
   }
+
+  const SPECIAL_CATEGORIES = [
+    "TCAE",
+    "Aux Administrativo/a",
+    "Administrativo/a",
+    "Técnico/a de Rayos",
+    "Odontólogo/a",
+    "Trabajador/a Social",
+    "Fisioterapeuta",
+    "Matrón/a",
+  ];
+
+  function handleCategoriaChange() {
+    const categoria = categoriaSelect.value;
+    const isSpecial = SPECIAL_CATEGORIES.includes(categoria);
+
+    if (isSpecial) {
+      centroAsignadoSelect.value = "Albuñol";
+      centroAsignadoSelect.setAttribute("disabled", true);
+      // Asegurar que el valor se envíe aunque esté disabled
+      if (!document.getElementById("centro_hidden_special")) {
+        const hiddenCent = document.createElement("input");
+        hiddenCent.type = "hidden";
+        hiddenCent.name = "centro_asignado";
+        hiddenCent.value = "Albuñol";
+        hiddenCent.id = "centro_hidden_special";
+        form.appendChild(hiddenCent);
+      }
+    } else {
+      // Solo rehabilitar si no es el caso de Dispositivo Apoyo Granada Sur
+      if (
+        unidadAsignadaSelect.value !== "Dispositivo Apoyo Granada Sur" &&
+        rolSelect.value !== "administrador"
+      ) {
+        centroAsignadoSelect.removeAttribute("disabled");
+      }
+      if (document.getElementById("centro_hidden_special")) {
+        document.getElementById("centro_hidden_special").remove();
+      }
+    }
+  }
+
+  categoriaSelect.addEventListener("change", handleCategoriaChange);
+
+  function handleDispositivoConstraint() {
+    if (unidadAsignadaSelect.value === "Dispositivo Apoyo Granada Sur") {
+      centroAsignadoSelect.value = "Dispositivo Apoyo Granada Sur";
+      centroAsignadoSelect.setAttribute("disabled", true);
+      // Metemos un input oculto para que el valor se envíe
+      if (!document.getElementById("centro_hidden")) {
+        const hiddenCent = document.createElement("input");
+        hiddenCent.type = "hidden";
+        hiddenCent.name = "centro_asignado";
+        hiddenCent.value = "Dispositivo Apoyo Granada Sur";
+        hiddenCent.id = "centro_hidden";
+        form.appendChild(hiddenCent);
+      }
+    } else {
+      centroAsignadoSelect.removeAttribute("disabled");
+      if (document.getElementById("centro_hidden")) {
+        document.getElementById("centro_hidden").remove();
+      }
+    }
+  }
+
+  unidadAsignadaSelect.addEventListener("change", handleDispositivoConstraint);
 
   const form = document.querySelector("form");
   const submitBtn = document.getElementById("submit_btn");

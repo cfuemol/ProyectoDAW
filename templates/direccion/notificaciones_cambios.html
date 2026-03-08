@@ -1,0 +1,67 @@
+{% extends "base.html" %} {% block title %}Notificaciones de Cambios{% endblock
+%} {% block nav %}
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="/direccion_dashboard">Panel Inicio</a>
+    <a href="/register">Registrar usuario</a>
+    <a href="/gestion_turnos">Gestión de turnos</a>
+    <a href="/notificaciones_cambios" style="color: var(--accent-color)"
+      >Notificaciones</a
+    >
+  </div>
+  <div class="nav-actions">
+    <a href="/logout" class="btn-logout">Cerrar sesión</a>
+    <a
+      href="/descargar_pdf_dia"
+      class="btn-pdf-global"
+      title="Descargar Turnos Hoy"
+      >📄 PDF Hoy</a
+    >
+  </div>
+</nav>
+{% endblock %} {% block content %}
+<div class="animate-in">
+  <h2>Historial de Cambios de Turno</h2>
+  <p>Notificaciones de intercambios realizados entre profesionales.</p>
+
+  {% if cambios %}
+  <table>
+    <thead>
+      <tr>
+        <th>Fecha Original</th>
+        <th>Fecha Final</th>
+        <th>Profesional 1</th>
+        <th>Profesional 2</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in cambios %}
+      <tr>
+        <td>{{ c.fecha_original.strftime('%d/%m/%Y') }}</td>
+        <td>{{ c.fecha_final.strftime('%d/%m/%Y') }}</td>
+        <td style="font-weight: 500">
+          {{ c.profesional1.nombre }} {{ c.profesional1.apellidos }}
+        </td>
+        <td style="font-weight: 500">
+          {{ c.profesional2.nombre }} {{ c.profesional2.apellidos }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="form-container" style="text-align: center; padding: 40px">
+    <p style="color: var(--text-secondary)">
+      No se han registrado cambios de turno todavía.
+    </p>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  /* Limpieza de estilos locales para usar el sistema global premium */
+  main {
+    max-width: 1000px;
+  }
+</style>
+{% endblock %}

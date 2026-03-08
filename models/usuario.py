@@ -8,7 +8,7 @@ class Usuario(Document):
     nombre = StringField(required=True)
     apellidos = StringField(required=True)
     categoria = StringField(required=True)
-    unidad_asignada = StringField(required=True, choices=['ZBS Albuñol', 'ZBS Motril', 'Dispositivo Apoyo Granada', 'ZBS Almuñecar', 'SAS'])
+    unidad_asignada = StringField(required=True, choices=['ZBS Albuñol', 'ZBS Motril', 'Dispositivo Apoyo Granada', 'ZBS Almuñecar', 'SAS', 'Dispositivo Apoyo Granada Sur'])
     centro_asignado = StringField(required=True)
     telefono = IntField(required=True)
     email = StringField(required=True, unique=True)
