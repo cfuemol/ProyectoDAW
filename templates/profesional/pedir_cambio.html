@@ -1,0 +1,135 @@
+{% extends "base.html" %} 
+{% block title %}Pedir Cambio de Turno{% endblock %} 
+
+{% block nav %}
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="/profesional_dashboard">Panel Inicio</a>
+    <a href="/profesional/ver_cuadrante">Ver Cuadrante</a>
+    <a href="/profesional/pedir_cambio" style="color: var(--accent-color)">Pedir cambio de turno</a>
+    <a href="/profesional/solicitudes_cambio">Solicitudes de cambio</a>
+    <a href="/profesional/historico_cambios">Histórico de cambios</a>
+  </div>
+  <div class="nav-actions">
+    <a href="/logout" class="btn-logout">Cerrar sesión</a>
+  </div>
+</nav>
+{% endblock %} 
+
+{% block content %}
+<div class="animate-in">
+  <h2>Solicitar Cambio de Turno</h2>
+  <p>Intercambia uno de tus turnos (17h o 24h) con otro compañero de tu misma categoría.</p>
+
+  <div class="form-container">
+    <form method="POST" action="/profesional/pedir_cambio">
+      
+      <div style="margin-bottom: 15px">
+        <label for="mi_turno_id">Mi Turno a cambiar:</label>
+        <select id="mi_turno_id" name="mi_turno_id" required>
+          <option value="">-- Selecciona un turno tuyo --</option>
+          {% for turno in mis_turnos %}
+            <option value="{{ turno.id }}">{{ turno.fecha.strftime('%d/%m/%Y') }} ({{ turno.tipo }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom: 15px">
+        <label for="companero_dni">Compañero ({{ usuario.categoria }}):</label>
+        <select id="companero_dni" name="companero_dni" required onchange="cargarTurnosCompanero()">
+          <option value="">-- Selecciona un compañero --</option>
+          {% for comp in companeros %}
+            <option value="{{ comp.dni }}">{{ comp.nombre }} {{ comp.apellidos }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom: 25px">
+        <label for="companero_turno_id">Turno del compañero que solicitas:</label>
+        <select id="companero_turno_id" name="companero_turno_id" required disabled>
+          <option value="">-- Primero selecciona un compañero --</option>
+        </select>
+      </div>
+
+      <div id="validacion-error" style="display: none; margin-bottom: 20px; padding: 10px; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; font-size: 0.9em;">
+      </div>
+
+      <button type="submit" id="submit-btn" disabled>Enviar Solicitud</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const miTurnoSel = document.getElementById('mi_turno_id');
+  const compTurnoSel = document.getElementById('companero_turno_id');
+  const submitBtn = document.getElementById('submit-btn');
+  const errorDiv = document.getElementById('validacion-error');
+
+  miTurnoSel.addEventListener('change', validarTodo);
+  compTurnoSel.addEventListener('change', validarTodo);
+
+  function validarTodo() {
+    errorDiv.style.display = 'none';
+    submitBtn.disabled = true;
+    const originalText = "Enviar Solicitud";
+    submitBtn.innerText = originalText;
+
+    if (miTurnoSel.value && compTurnoSel.value) {
+      submitBtn.innerText = "⏳ Validando descanso...";
+      
+      // Llamar al API de validación
+      fetch(`/api/validar_cambio?mi_turno_id=${miTurnoSel.value}&companero_turno_id=${compTurnoSel.value}`)
+        .then(res => res.json())
+        .then(data => {
+          submitBtn.innerText = originalText;
+          if (data.valido) {
+            submitBtn.disabled = false;
+          } else {
+            submitBtn.disabled = true; // Asegurar que sigue bloqueado
+            if (data.mensaje) {
+              errorDiv.innerText = data.mensaje;
+              errorDiv.style.display = 'block';
+            }
+          }
+        })
+        .catch(err => {
+          console.error("Error validando:", err);
+          submitBtn.innerText = originalText;
+          submitBtn.disabled = true;
+        });
+    }
+  }
+
+  function cargarTurnosCompanero() {
+    const dni = document.getElementById('companero_dni').value;
+    const selectTurno = document.getElementById('companero_turno_id');
+    
+    selectTurno.innerHTML = '<option value="">Cargando turnos...</option>';
+    selectTurno.disabled = true;
+    validarTodo();
+
+    if (!dni) {
+      selectTurno.innerHTML = '<option value="">-- Primero selecciona un compañero --</option>';
+      return;
+    }
+
+    fetch(`/api/turnos_companero/${dni}`)
+      .then(response => response.json())
+      .then(data => {
+        selectTurno.innerHTML = '<option value="">-- Selecciona un turno del compañero --</option>';
+        if (data.turnos.length === 0) {
+          selectTurno.innerHTML = '<option value="">El compañero no tiene turnos disponibles de 17h/24h</option>';
+        } else {
+          data.turnos.forEach(turno => {
+            selectTurno.innerHTML += `<option value="${turno.id}">${turno.fecha} (${turno.tipo})</option>`;
+          });
+          selectTurno.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching turnos:', error);
+        selectTurno.innerHTML = '<option value="">Error al cargar turnos</option>';
+      });
+  }
+</script>
+{% endblock %}

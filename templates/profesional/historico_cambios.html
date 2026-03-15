@@ -1,0 +1,77 @@
+{% extends "base.html" %} 
+{% block title %}Histórico de Cambios{% endblock %} 
+
+{% block nav %}
+<nav class="top-nav">
+  <div class="nav-links">
+    <a href="/profesional_dashboard">Panel Inicio</a>
+    <a href="/profesional/ver_cuadrante">Ver Cuadrante</a>
+    <a href="/profesional/pedir_cambio">Pedir cambio de turno</a>
+    <a href="/profesional/solicitudes_cambio">Solicitudes de cambio</a>
+    <a href="/profesional/historico_cambios" style="color: var(--accent-color)">Histórico de cambios</a>
+  </div>
+  <div class="nav-actions">
+    <a href="/logout" class="btn-logout">Cerrar sesión</a>
+  </div>
+</nav>
+{% endblock %} 
+
+{% block content %}
+<div class="animate-in">
+  <h2>Histórico de Cambios de Turno</h2>
+  <p>Registro de todos los intercambios de turno (ofrecidos o aceptados) que se han realizado.</p>
+
+  {% if cambios|length > 0 %}
+  <table>
+    <thead>
+      <tr>
+        <th>Profesional 1 (Ofrecido)</th>
+        <th>Turno P1</th>
+        <th>Profesional 2 (Recibido)</th>
+        <th>Turno P2</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sol in cambios %}
+      <tr>
+        <td>
+          {% if sol.profesional1.dni == usuario.dni %}
+            <strong>Yo</strong>
+          {% else %}
+            {{ sol.profesional1.nombre }} {{ sol.profesional1.apellidos }}
+          {% endif %}
+        </td>
+        <td>
+          <div style="font-weight: 500;">{{ sol.fecha_original.strftime('%d/%m/%Y') }}</div>
+          {% if sol.tipo_p1 %}
+            <span class="badge badge-{{ sol.tipo_p1 }}">{{ sol.tipo_p1 }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if sol.profesional2.dni == usuario.dni %}
+            <strong>Yo</strong>
+          {% else %}
+            {{ sol.profesional2.nombre }} {{ sol.profesional2.apellidos }}
+          {% endif %}
+        </td>
+        <td>
+          <div style="font-weight: 500;">{{ sol.fecha_final.strftime('%d/%m/%Y') }}</div>
+          {% if sol.tipo_p2 %}
+            <span class="badge badge-{{ sol.tipo_p2 }}">{{ sol.tipo_p2 }}</span>
+          {% endif %}
+        </td>
+        <td>
+          <span class="badge badge-accepted" style="background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2);">Aceptado</span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="form-container" style="text-align: center; padding: 40px">
+    <p style="color: var(--text-secondary)">No tienes ningún cambio de turno registrado en el histórico.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

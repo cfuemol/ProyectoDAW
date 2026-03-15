@@ -60,8 +60,13 @@
     <option value="administrador" {{ 'selected' if usuario.rol == 'administrador' else '' }}>Administrador</option>
     <option value="direccion" {{ 'selected' if usuario.rol == 'direccion' else '' }}>Dirección</option>
     <option value="profesional" {{ 'selected' if usuario.rol == 'profesional' else '' }}>Profesional</option>
-    <option value="mostrador" {{ 'selected' if usuario.rol == 'mostrador' else '' }}>Mostrador</option>
   </select><br /><br />
+
+  <div id="saliente_section" style="display: none; border: 1px solid var(--panel-border); padding: 15px; border-radius: 8px; margin-bottom: 20px; background: rgba(234, 179, 8, 0.05);">
+    <label for="es_saliente" style="display: inline; text-transform: none; color: var(--text-primary); font-weight: 600;">¿Es Saliente? (Cubre descansos L-J):</label>
+    <input type="checkbox" id="es_saliente" name="es_saliente" {{ 'checked' if usuario.es_saliente else '' }} style="width: auto; margin: 0 0 0 10px; vertical-align: middle;">
+    <p style="font-size: 0.8em; color: var(--text-secondary); margin: 5px 0 0 0;">Solo para Médicos/as y DUEs con rol profesional.</p>
+  </div>
 
   <button type="submit">Actualizar Usuario</button>
 </form>
@@ -118,9 +123,20 @@
       unidadAsignadaSelect.removeAttribute("readonly");
       centroAsignadoSelect.removeAttribute("readonly");
     }
+
+    // Nueva lógica Salientes
+    const salienteSection = document.getElementById("saliente_section");
+    const allowedCats = ["Médico/a", "DUE"];
+    if (rolSelect.value === "profesional" && allowedCats.includes(categoriaSelect.value)) {
+      salienteSection.style.display = "block";
+    } else {
+      salienteSection.style.display = "none";
+      document.getElementById("es_saliente").checked = false;
+    }
   }
 
   rolSelect.addEventListener("change", updateAdminFields);
+  categoriaSelect.addEventListener("change", updateAdminFields);
   updateAdminFields();
 </script>
 {% endblock %}

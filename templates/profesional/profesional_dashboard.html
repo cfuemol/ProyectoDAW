@@ -2,14 +2,34 @@
 block nav %}
 <nav class="top-nav">
   <div class="nav-links">
-    <a href="#">Mis turnos</a>
-    <a href="#">Solicitar cambio</a>
+    <a href="/profesional_dashboard" style="color: var(--accent-color)"
+      >Mi Dashboard</a
+    >
+    <a href="/profesional/ver_cuadrante">Ver Cuadrante</a>
+    {% set categorias_permitidas = ["Médico/a", "DUE", "Celador/a-Conductor/a"]
+    %} {% if usuario.categoria in categorias_permitidas %}
+    <a href="/profesional/pedir_cambio">Pedir cambio de turno</a>
+    <a href="/profesional/solicitudes_cambio">Solicitudes de cambio</a>
+    <a href="/profesional/historico_cambios">Histórico de cambios</a>
+    {% endif %}
   </div>
   <div class="nav-actions">
     <a href="/logout" class="btn-logout">Cerrar sesión</a>
+    <a
+      href="/descargar_pdf_dia"
+      class="btn-pdf-global"
+      title="Descargar Turnos Hoy"
+      >📄 PDF Hoy</a
+    >
   </div>
 </nav>
 {% endblock %} {% block content %}
-<h2>Panel del Profesional</h2>
-<p>Consulta tus turnos y gestiona tus solicitudes.</p>
+<div class="hero-section text-center animate-in">
+  <h1>Bienvenido/a, {{ usuario.nombre }} {{ usuario.apellidos }}</h1>
+  <p class="subtitle">
+    {{ usuario.categoria }} - {{ usuario.centro_asignado }}
+  </p>
+</div>
+
+
 {% endblock %}

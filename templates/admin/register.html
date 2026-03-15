@@ -23,8 +23,7 @@ block nav %}
     <option value="administrador">Administrador</option>
     <option value="direccion">Dirección</option>
     {% endif %}
-    <option value="profesional">Profesional</option>
-    <option value="mostrador">Mostrador</option></select
+    <option value="profesional">Profesional</option></select
   ><br /><br />
 
   <label for="dni">DNI:</label>
@@ -126,6 +125,40 @@ block nav %}
     placeholder="Min. 8-12 car, A, a, 1, #"
     required
   /><br /><br />
+
+  <div
+    id="saliente_section"
+    style="
+      display: none;
+      border: 1px solid var(--panel-border);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      background: rgba(234, 179, 8, 0.05);
+    "
+  >
+    <label
+      for="es_saliente"
+      style="
+        display: inline;
+        text-transform: none;
+        color: var(--text-primary);
+        font-weight: 600;
+      "
+      >¿Es Saliente? (Cubre descansos L-J):</label
+    >
+    <input
+      type="checkbox"
+      id="es_saliente"
+      name="es_saliente"
+      style="width: auto; margin: 0 0 0 10px; vertical-align: middle"
+    />
+    <p
+      style="font-size: 0.8em; color: var(--text-secondary); margin: 5px 0 0 0"
+    >
+      Solo para Médicos/as y DUEs con rol profesional.
+    </p>
+  </div>
 
   <button type="submit" id="submit_btn" disabled>Registrar Usuario</button>
 </form>
@@ -229,6 +262,20 @@ block nav %}
       unidadAsignadaSelect.setAttribute("readonly", true);
       centroAsignadoSelect.setAttribute("readonly", true);
     }
+
+    // Nueva lógica Salientes
+    const salienteSection = document.getElementById("saliente_section");
+    const allowedCats = ["Médico/a", "DUE"];
+    if (
+      rolSelect.value === "profesional" &&
+      allowedCats.includes(categoriaSelect.value)
+    ) {
+      salienteSection.style.display = "block";
+    } else {
+      salienteSection.style.display = "none";
+      document.getElementById("es_saliente").checked = false;
+    }
+
     handleCategoriaChange(); // Validar categoría tras cambio de rol
   }
 

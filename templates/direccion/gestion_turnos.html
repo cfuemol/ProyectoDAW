@@ -107,6 +107,12 @@ block head %}
     color: #3b82f6;
     border: 1px solid rgba(59, 130, 246, 0.2);
   }
+  .location-saliente { 
+    background: rgba(234, 179, 8, 0.15); 
+    color: #facc15; 
+    border: 1px solid var(--accent-color); 
+    box-shadow: 0 0 10px var(--accent-glow); 
+  }
 
   .action-btns {
     display: flex;
@@ -167,7 +173,7 @@ block head %}
 {% endblock %} {% block nav %}
 <nav class="top-nav">
   <div class="nav-links">
-    <a href="/direccion_dashboard">&larr; Panel Inicio</a>
+    <a href="/direccion_dashboard">Panel Inicio</a>
     <a href="/register">Registrar usuario</a>
     <a href="/gestion_turnos" style="color: var(--accent-color)"
       >Gestión de turnos</a
@@ -285,29 +291,13 @@ block head %}
               id="form-mod-{{ t.id }}"
             >
               <select name="tipo" style="padding: 2px">
-                <option value="7h" {% if t.tipo == "7h" %}selected{% endif %}>
+                <option value="7h" {% if t.tipo == '7h' %}selected{% endif %}>
                   7h
                 </option>
-                <option
-                  value="17h"
-                  {%
-                  if
-                  t.tipo == "17h"
-                  %}selected{%
-                  endif
-                  %}
-                >
+                <option value="17h" {% if t.tipo == '17h' %}selected{% endif %}>
                   17h
                 </option>
-                <option
-                  value="24h"
-                  {%
-                  if
-                  t.tipo == "24h"
-                  %}selected{%
-                  endif
-                  %}
-                >
+                <option value="24h" {% if t.tipo == '24h' %}selected{% endif %}>
                   24h
                 </option>
               </select>
@@ -315,18 +305,15 @@ block head %}
             </form>
           </td>
           <td>
-            {% if t.tipo == '7h' %}
-            <span class="location-badge location-centro"
-              >{{ t.profesional.centro_asignado }}</span
-            >
-            {% elif t.tipo == '24h' and t.fecha.weekday() in [0, 1, 2, 3, 4] %}
-            <span class="location-badge location-dual"
-              >{{ t.profesional.centro_asignado }} + Urgencias</span
-            >
+            {% set ct = t.centro_trabajo %}
+            {% if 'Urgencias' in ct and '+' in ct %}
+              <span class="location-badge location-dual">{{ ct }}</span>
+            {% elif 'Urgencias' in ct %}
+              <span class="location-badge location-urgencias">{{ ct }}</span>
+            {% elif 'Saliente' in ct %}
+              <span class="location-badge location-saliente">{{ ct }}</span>
             {% else %}
-            <span class="location-badge location-urgencias"
-              >Urgencias Albuñol</span
-            >
+              <span class="location-badge location-centro">{{ ct }}</span>
             {% endif %}
           </td>
           <td>

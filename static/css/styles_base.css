@@ -351,6 +351,14 @@ button:hover {
     box-shadow: 0 10px 15px -3px var(--accent-glow), 0 4px 6px -2px var(--accent-glow);
 }
 
+button:disabled {
+    background: #64748b !important; /* Gris pizarra */
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 button:active {
     transform: translateY(1px);
     box-shadow: none;

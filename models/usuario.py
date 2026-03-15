@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, IntField
+from mongoengine import Document, StringField, IntField, BooleanField
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class Usuario(Document):
@@ -18,7 +18,11 @@ class Usuario(Document):
     password_hash = StringField(required=True)
 
     #* Rol en el sistema
-    rol = StringField(required=True, choices=['administrador', 'profesional', 'mostrador', 'direccion'])
+    rol = StringField(required=True, choices=['administrador', 'profesional', 'direccion'])
+
+    #* Gestión de Salientes
+    es_saliente = BooleanField(default=False)
+    total_salientes = IntField(default=0)
 
     #* Métodos de Seguridad
     def set_password(self, password):
