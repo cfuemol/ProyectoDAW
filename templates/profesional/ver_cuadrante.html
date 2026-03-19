@@ -1,10 +1,14 @@
 {% extends "base.html" %} 
 {% block title %}Ver Cuadrante{% endblock %} 
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+{% endblock %}
 
 {% block nav %}
 <nav class="top-nav">
   <div class="nav-links">
-    <a href="/profesional_dashboard">Panel Inicio</a>
+    <a href="/profesional_dashboard">Mi dashboard</a>
     <a href="/profesional/ver_cuadrante" style="color: var(--accent-color)">Ver Cuadrante</a>
     {% set categorias_permitidas = ["Médico/a", "DUE", "Celador/a-Conductor/a"] %}
     {% if usuario.categoria in categorias_permitidas %}
@@ -14,6 +18,7 @@
     {% endif %}
   </div>
   <div class="nav-actions">
+    <a href="/cambiar_password" class="btn-password">Cambiar contraseña</a>
     <a href="/logout" class="btn-logout">Cerrar sesión</a>
     <a href="/descargar_pdf_dia" class="btn-pdf-global" title="Descargar Turnos Hoy">📄 PDF Hoy</a>
   </div>
@@ -24,6 +29,12 @@
 <div class="animate-in">
   <h2>Cuadrante de Turnos</h2>
   <p>Visualización de tus turnos asignados.</p>
+
+  <!-- Filtro por Mes -->
+  <div class="filter-container" style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; background: rgba(128, 128, 128, 0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--panel-border);">
+    <label for="month-picker" style="margin: 0; text-transform: none; font-weight: 600;">Filtrar por Mes:</label>
+    <input type="text" id="month-picker" style="width: auto; margin: 0; padding: 8px 15px; min-width: 200px;" placeholder="Selecciona Mes">
+  </div>
 
   {% if turnos|length > 0 %}
   <table>
@@ -90,4 +101,29 @@
   .location-urgencias { background: rgba(234, 179, 8, 0.1); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.4); }
   .location-saliente { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid var(--accent-color); box-shadow: 0 0 10px var(--accent-glow); }
 </style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const monthPicker = flatpickr("#month-picker", {
+      locale: "es",
+      plugins: [
+        new monthSelectPlugin({
+          shorthand: true, 
+          dateFormat: "m/Y",
+          altFormat: "F Y"
+        })
+      ],
+      defaultDate: "{{ '%02d' % mes_sel }}/{{ anio_sel }}",
+      onChange: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length > 0) {
+            const date = selectedDates[0];
+            const mes = date.getMonth() + 1;
+            const anio = date.getFullYear();
+            // Recargar con los nuevos parámetros
+            window.location.href = `/profesional/ver_cuadrante?mes=${mes}&anio=${anio}`;
+        }
+      }
+    });
+  });
+</script>
 {% endblock %}

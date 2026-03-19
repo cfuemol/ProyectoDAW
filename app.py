@@ -174,10 +174,6 @@ def register():
         nombre = request.form['nombre'].strip()
         apellidos = request.form['apellidos'].strip()
         categoría = request.form['categoria']
-        centro_asignado = request.form['centro_asignado']
-        telefono = request.form['telefono'].strip()
-        email = request.form['email'].strip().lower()
-        password = request.form['password']
         rol = request.form['rol']
         unidad_asignada = request.form['unidad_asignada']
 
@@ -194,12 +190,6 @@ def register():
             flash("El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9.", "error")
             return redirect(url_for('register'))
             
-        # Validación de contraseña
-        pass_regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]).{8,12}$"
-        if not re.match(pass_regex, password):
-            flash("La contraseña debe tener entre 8 y 12 caracteres, incluir una mayúscula, una minúscula, un número y un símbolo.", "error")
-            return redirect(url_for('register'))
-
         # Validación de nombre y apellidos (mínimo 6 caracteres, letras y espacios internos)
         name_regex = r"^[a-zA-ZÁéíóúñÑÁÉÍÓÚ][a-zA-ZÁéíóúñÑÁÉÍÓÚ\s]{4,}[a-zA-ZÁéíóúñÑÁÉÍÓÚ]$"
         if not re.match(name_regex, nombre) or not re.match(name_regex, apellidos):
@@ -254,7 +244,9 @@ def register():
                 rol=rol,
                 es_saliente=request.form.get('es_saliente') == 'on'
             )
-            usuario.set_password(password)
+            # Asignar contraseña por defecto según el rol
+            default_pass = "admin" if rol == "administrador" else "admin123"
+            usuario.set_password(default_pass)
             usuario.save()
             flash("Usuario añadido correctamente", "success")
             return redirect(url_for('admin_dashboard')) if session.get('rol') == 'administrador' else redirect(url_for('direccion_dashboard'))
@@ -335,6 +327,38 @@ def editar_usuario(dni):
 
     return render_template("admin/edit_usuario.html", usuario=usuario)
 
+@app.route("/cambiar_password", methods=["GET", "POST"])
+def cambiar_password():
+    if 'dni' not in session:
+        return redirect(url_for('login'))
+        
+    usuario = Usuario.objects(dni=session['dni']).first()
+    if not usuario:
+        return redirect(url_for('logout'))
+
+    if request.method == "POST":
+        new_password = request.form.get('new_password')
+        
+        # Validación de seguridad de la contraseña
+        pass_regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]).{8,12}$"
+        if not re.match(pass_regex, new_password):
+            flash("La contraseña debe tener entre 8 y 12 caracteres, incluir una mayúscula, una minúscula, un número y un símbolo.", "error")
+            return redirect(url_for('cambiar_password'))
+            
+        usuario.set_password(new_password)
+        usuario.save()
+        flash("Contraseña actualizada correctamente.", "success")
+        
+        # Redireccionar según el rol
+        if usuario.rol == "administrador":
+            return redirect(url_for("admin_dashboard"))
+        elif usuario.rol == "direccion":
+            return redirect(url_for("direccion_dashboard"))
+        else:
+            return redirect(url_for("profesional_dashboard"))
+
+    return render_template("profesional/cambiar_password.html", usuario=usuario)
+
 #*---------------------------------
 #* ENDPOINTS POR ROL
 #*---------------------------------
@@ -359,9 +383,33 @@ def profesional_dashboard():
 @requiere_rol("profesional")
 def profesional_ver_cuadrante():
     usuario = Usuario.objects(dni=session.get('dni')).first()
-    profesionales = [usuario]
-    turnos = Turno.objects(profesional=usuario).order_by('fecha')
-    return render_template("profesional/ver_cuadrante.html", profesionales=profesionales, turnos=turnos, usuario=usuario)
+    
+    # Obtener mes y año de los parámetros de consulta, por defecto el actual
+    mes_actual = datetime.now().month
+    anio_actual = datetime.now().year
+    
+    mes = request.args.get('mes', default=mes_actual, type=int)
+    anio = request.args.get('anio', default=anio_actual, type=int)
+    
+    # Filtrar turnos por el rango de fechas del mes seleccionado
+    fecha_inicio = datetime(anio, mes, 1)
+    if mes == 12:
+        fecha_fin = datetime(anio + 1, 1, 1)
+    else:
+        fecha_fin = datetime(anio, mes + 1, 1)
+        
+    turnos = Turno.objects(
+        profesional=usuario,
+        fecha__gte=fecha_inicio,
+        fecha__lt=fecha_fin
+    ).order_by('fecha')
+    
+    return render_template("profesional/ver_cuadrante.html", 
+                           profesionales=[usuario], 
+                           turnos=turnos, 
+                           usuario=usuario,
+                           mes_sel=mes,
+                           anio_sel=anio)
 
 #*---------------------------------------------------
 #* GESTIÓN DE TURNOS (SÓLO DIRECCIÓN)

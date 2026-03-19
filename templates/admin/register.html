@@ -117,15 +117,6 @@ block nav %}
     required
   /><br /><br />
 
-  <label for="password">Contraseña:</label>
-  <input
-    type="password"
-    id="password"
-    name="password"
-    placeholder="Min. 8-12 car, A, a, 1, #"
-    required
-  /><br /><br />
-
   <div
     id="saliente_section"
     style="
@@ -145,7 +136,7 @@ block nav %}
         color: var(--text-primary);
         font-weight: 600;
       "
-      >¿Es Saliente? (Cubre descansos L-J):</label
+      >¿Es Saliente? (Cubre descansos L-V):</label
     >
     <input
       type="checkbox"
@@ -376,16 +367,6 @@ block nav %}
     return emailRegex.test(email);
   }
 
-  function validarPassword(pass) {
-    // 8-12 caracteres, 1 mayus, 1 minus, 1 numero, 1 simbolo
-    const hasUpper = /[A-Z]/.test(pass);
-    const hasLower = /[a-z]/.test(pass);
-    const hasNumber = /[0-9]/.test(pass);
-    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass);
-    const validLength = pass.length >= 8 && pass.length <= 12;
-    return hasUpper && hasLower && hasNumber && hasSymbol && validLength;
-  }
-
   function validarTelefono(telefono) {
     const telRegex = /^[6789]\d{8}$/;
     return telRegex.test(telefono);
@@ -411,13 +392,10 @@ block nav %}
     const isDniValid = validarDNI(dniInput.value);
     const isEmailValid = validarEmail(emailInput.value);
     const isTelefonoValid = validarTelefono(telefonoInput.value);
-    const passwordInput = document.getElementById("password");
-    const isPasswordValid = validarPassword(passwordInput.value);
 
     updateValidationStyles(dniInput, isDniValid);
     updateValidationStyles(emailInput, isEmailValid);
     updateValidationStyles(telefonoInput, isTelefonoValid);
-    updateValidationStyles(passwordInput, isPasswordValid);
 
     // Validar el resto de campos (solo que no estén vacíos ni solo espacios)
     inputs.forEach((input) => {
@@ -428,8 +406,6 @@ block nav %}
         if (!isEmailValid) allValid = false;
       } else if (input === telefonoInput) {
         if (!isTelefonoValid) allValid = false;
-      } else if (input === passwordInput) {
-        if (!isPasswordValid) allValid = false;
       } else if (input.id === "nombre" || input.id === "apellidos") {
         // Mínimo 6 caracteres, letras y espacios internos (no al inicio ni al final)
         const nameRegex =

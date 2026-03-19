@@ -159,12 +159,27 @@ nav {
     border: 1px solid var(--danger-color);
     padding: 6px 12px !important;
     border-radius: 20px !important;
+    font-size: 0.85rem !important;
 }
 
 .btn-logout:hover {
     background: var(--danger-color) !important;
     color: white !important;
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.3) !important;
+}
+
+.btn-password {
+    color: var(--accent-color) !important;
+    border: 1px solid var(--accent-color);
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    font-size: 0.85rem !important;
+}
+
+.btn-password:hover {
+    background: var(--accent-color) !important;
+    color: #000 !important; /* En tema oscuro el acento es amarillo, texto negro queda mejor */
+    box-shadow: 0 0 10px var(--accent-glow) !important;
 }
 
 .btn-pdf-global {
@@ -585,4 +600,45 @@ td button:hover {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Flatpickr Theme Overrides */
+.flatpickr-calendar {
+    background: var(--panel-bg) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--panel-border) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange,
+.flatpickr-day.selected:hover, .flatpickr-day.nextMonthDay.selected,
+.flatpickr-monthSelect-month.selected {
+    background: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+    color: #000 !important;
+}
+
+.flatpickr-day, .flatpickr-monthSelect-month {
+    color: var(--text-primary) !important;
+}
+
+.flatpickr-day:hover, .flatpickr-monthSelect-month:hover {
+    background: var(--accent-glow) !important;
+}
+
+.flatpickr-months .flatpickr-month, 
+.flatpickr-months .flatpickr-prev-month, 
+.flatpickr-months .flatpickr-next-month {
+    color: var(--text-primary) !important;
+    fill: var(--text-primary) !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.numInputWrapper span, .flatpickr-weekday {
+    color: var(--text-secondary) !important;
+}
+
+.flatpickr-current-month input.cur-year {
+    color: inherit !important;
 }
