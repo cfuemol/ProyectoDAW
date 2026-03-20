@@ -3,7 +3,7 @@ from app import app as flask_app
 from mongoengine import connect, disconnect
 import mongomock
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope='function', autouse=True)
 def mock_db():
     # Desconectar cualquier conexión real antes de empezar
     disconnect()

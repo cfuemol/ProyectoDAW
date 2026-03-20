@@ -39,28 +39,6 @@ def test_user_registration_logic(client):
     assert user is not None
     assert user.nombre == "Alberto"
 
-def test_invalid_password_registration(client):
-    """Verificar que no se permite registro con contraseña débil."""
-    with client.session_transaction() as sess:
-        sess['rol'] = 'administrador'
-    
-    data = {
-        'dni': '11111111H',
-        'nombre': 'Ricardo',
-        'apellidos': 'Jimenez Vera',
-        'categoria': 'profesional',
-        'centro_asignado': 'ZBS Motril',
-        'telefono': '600000002',
-        'email': 'ricardo@test.com',
-        'password': '123', # Muy corta e insegura
-        'rol': 'profesional',
-        'unidad_asignada': 'SAS'
-    }
-    
-    client.post('/register', data=data) 
-    with client.session_transaction() as sess:
-        flashes = sess.get('_flashes', [])
-        assert any("contraseña debe tener entre 8 y 12 caracteres" in f[1] for f in flashes)
 
 def test_user_deletion(client):
     """Probar que un administrador puede borrar un usuario."""

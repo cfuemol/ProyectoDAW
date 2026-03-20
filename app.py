@@ -157,12 +157,12 @@ def validar_dni_nie(documento):
         numero = int(documento[:8])
         return letras[numero % 23] == documento[8]
     
-    # NIE: X, Y o Z + 7 números + 1 letra
-    if re.match(r"^[XYZ]\d{7}[A-Z]$", documento):
-        prefijo = {"X": "0", "Y": "1", "Z": "2"}
-        documento_transformado = prefijo[documento[0]] + documento[1:]
-        numero = int(documento_transformado[:8])
-        return letras[numero % 23] == documento[-1]
+    # NIE: X/Y/Z + 7 números + 1 letra
+    elif re.match(r"^[XYZ]\d{7}[A-Z]$", documento):
+        mapeo = {'X': 0, 'Y': 1, 'Z': 2}
+        primer_digito = mapeo[documento[0]]
+        numero = int(str(primer_digito) + documento[1:8])
+        return letras[numero % 23] == documento[8]
     
     return False
 
@@ -170,14 +170,17 @@ def validar_dni_nie(documento):
 @requiere_rol("administrador", "direccion")
 def register():
     if request.method == "POST":
-        dni = request.form['dni'].strip().upper()
-        nombre = request.form['nombre'].strip()
-        apellidos = request.form['apellidos'].strip()
+        dni = request.form['dni']
+        nombre = request.form['nombre']
+        apellidos = request.form['apellidos']
         categoría = request.form['categoria']
-        rol = request.form['rol']
         unidad_asignada = request.form['unidad_asignada']
+        centro_asignado = request.form['centro_asignado']
+        telefono = request.form['telefono']
+        email = request.form['email']
+        rol = request.form['rol']
 
-        #* Validaciones de formato
+        #* Validaciones de entrada
         if not validar_dni_nie(dni):
             flash("El DNI/NIE no tiene un formato válido.", "error")
             return redirect(url_for('register'))

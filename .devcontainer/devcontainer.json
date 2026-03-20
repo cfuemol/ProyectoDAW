@@ -1,0 +1,32 @@
+{
+    "name": "ProyectoDAW (Docker)",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "flask",
+    "workspaceFolder": "/app",
+
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false,
+                "python.testing.pytestArgs": ["tests"],
+                "python.testing.autoTestDiscoverOnSaveEnabled": true,
+                "terminal.integrated.env.linux": {
+                    "PYTHONPATH": "/app"
+                }
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    },
+
+    "remoteEnv": {
+        "PYTHONPATH": "/app"
+    },
+
+    "postCreateCommand": "pip install pytest pytest-flask mongomock"
+}

@@ -104,10 +104,12 @@ def test_gestion_turnos_batch_insertion(client):
 
 def test_descargar_pdf_dia(client):
     """Verificar que la descarga de PDF funciona."""
-    # Asegurar que hay al menos un turno hoy que cumpla con las reglas
-    prof = Usuario.objects(dni='22222222T').first()
+    # Crear un usuario para el test
+    prof = Usuario(dni='PDF001', nombre='PDF', apellidos='User', categoria='DUE', 
+                   unidad_asignada='ZBS Albuñol', centro_asignado='Centro PDF', telefono=666555444,
+                   email='pdf@test.com', rol='profesional', password_hash='...').save()
+    
     hoy = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    Turno.objects(profesional=prof, fecha=hoy).delete()
     # Hoy es Domingo, así que usamos 24h para cumplir la nueva regla
     Turno(profesional=prof, fecha=hoy, tipo='24h').save()
 
@@ -117,9 +119,12 @@ def test_descargar_pdf_dia(client):
     response = client.get('/descargar_pdf_dia')
     assert response.status_code == 200
     assert response.mimetype == 'application/pdf'
+
 def test_validacion_descanso_post_guardia(client):
     """Verificar que no se puede asignar un turno el día después de una guardia."""
-    prof = Usuario.objects(dni='22222222T').first()
+    prof = Usuario(dni='REST001', nombre='Rest', apellidos='User', categoria='DUE', 
+                   unidad_asignada='ZBS Albuñol', centro_asignado='Centro Rest', telefono=666111222,
+                   email='rest@test.com', rol='profesional', password_hash='...').save()
     
     # 1. Asignar guardia el día 10
     fecha_guardia = datetime(2026, 3, 10)
@@ -130,7 +135,7 @@ def test_validacion_descanso_post_guardia(client):
     
     # 2. Intentar asignar turno el día 11 (Debe fallar)
     data = {
-        'profesional_dni[]': ['22222222T'],
+        'profesional_dni[]': ['REST001'],
         'fecha[]': ['2026-03-11'],
         'tipo[]': ['7h']
     }
@@ -139,9 +144,13 @@ def test_validacion_descanso_post_guardia(client):
     
     # Verificar que el turno del día 11 no se guardó
     turno_dia_11 = Turno.objects(profesional=prof, fecha=datetime(2026, 3, 11)).first()
+    assert turno_dia_11 is None
+
 def test_restriccion_fin_de_semana(client):
     """Verificar que en fin de semana solo se permiten turnos de 24h."""
-    prof = Usuario.objects(dni='22222222T').first()
+    prof = Usuario(dni='WEEK001', nombre='Weekend', apellidos='User', categoria='DUE', 
+                   unidad_asignada='ZBS Albuñol', centro_asignado='Centro Weekend', telefono=611222333,
+                   email='week@test.com', rol='profesional', password_hash='...').save()
     
     # Sábado 14 de marzo 2026
     fecha_sabado = '2026-03-14'
@@ -151,7 +160,7 @@ def test_restriccion_fin_de_semana(client):
     
     # 1. Intentar asignar 17h en sábado (Debe fallar)
     data_fail = {
-        'profesional_dni[]': ['22222222T'],
+        'profesional_dni[]': ['WEEK001'],
         'fecha[]': [fecha_sabado],
         'tipo[]': ['17h']
     }
@@ -160,7 +169,7 @@ def test_restriccion_fin_de_semana(client):
     
     # 2. Asignar 24h en sábado (Debe pasar)
     data_pass = {
-        'profesional_dni[]': ['22222222T'],
+        'profesional_dni[]': ['WEEK001'],
         'fecha[]': [fecha_sabado],
         'tipo[]': ['24h']
     }
