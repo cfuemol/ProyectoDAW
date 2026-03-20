@@ -9,7 +9,10 @@ block nav %}
     {% endif %}
   </div>
   <div class="nav-actions">
-    <a href="/logout" class="btn-logout">Cerrar sesión</a>
+    <a href="/logout" class="btn-logout">Cerrar Sesión</a>
+    {% if session['rol'] != 'administrador' %}
+    <a href="/descargar_pdf_dia" class="btn-pdf-global" title="Ver quién trabaja hoy">📄 ¿Quién trabaja hoy?</a>
+    {% endif %}
   </div>
 </nav>
 {% endblock %} {% block content %}

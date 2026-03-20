@@ -411,6 +411,94 @@ def profesional_ver_cuadrante():
                            mes_sel=mes,
                            anio_sel=anio)
 
+@app.route("/profesional/descargar_pdf")
+@requiere_rol("profesional")
+def profesional_descargar_pdf():
+    usuario = Usuario.objects(dni=session.get('dni')).first()
+    
+    mes = request.args.get('mes', type=int)
+    anio = request.args.get('anio', type=int)
+    
+    if not mes or not anio:
+        return {"error": "Mes y año son requeridos."}, 400
+
+    # Rango de fechas
+    fecha_inicio = datetime(anio, mes, 1)
+    if mes == 12:
+        fecha_fin = datetime(anio + 1, 1, 1)
+    else:
+        fecha_fin = datetime(anio, mes + 1, 1)
+        
+    turnos = Turno.objects(
+        profesional=usuario,
+        fecha__gte=fecha_inicio,
+        fecha__lt=fecha_fin
+    ).order_by('fecha')
+
+    if not turnos:
+        # Si no hay turnos, enviamos un PDF con un mensaje indicativo en lugar de error
+        # para que la experiencia de usuario sea mejor que un JSON de error.
+        pass
+
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Configurar fuentes y cabecera
+    pdf.set_font("helvetica", "B", 16)
+    meses_nombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    titulo = f"Turnos - {meses_nombres[mes-1]} {anio}"
+    pdf.cell(190, 10, titulo, align="C")
+    pdf.ln(15)
+
+    # Información del profesional
+    pdf.set_font("helvetica", "B", 11)
+    pdf.cell(190, 7, f"Profesional: {usuario.nombre} {usuario.apellidos}", ln=True)
+    pdf.cell(190, 7, f"Categoría: {usuario.categoria}", ln=True)
+    pdf.cell(190, 7, f"DNI: {usuario.dni}", ln=True)
+    pdf.ln(10)
+
+    # Tabla de turnos
+    pdf.set_font("helvetica", "B", 10)
+    pdf.set_fill_color(240, 240, 240)
+    
+    # Anchos de columna: Fecha (40), Tipo (40), Centro (110)
+    pdf.cell(40, 10, "Fecha", 1, fill=True, align="C")
+    pdf.cell(40, 10, "Tipo", 1, fill=True, align="C")
+    pdf.cell(110, 10, "Centro de Trabajo", 1, fill=True, align="C")
+    pdf.ln()
+
+    pdf.set_font("helvetica", "", 10)
+    if not turnos:
+        pdf.cell(190, 10, "No hay turnos registrados para este mes.", 1, align="C")
+    else:
+        for turno in turnos:
+            fecha_str = turno.fecha.strftime('%d/%m/%Y')
+            pdf.cell(40, 10, fecha_str, 1, align="C")
+            pdf.cell(40, 10, turno.tipo, 1, align="C")
+            pdf.cell(110, 10, turno.centro_trabajo, 1, align="C")
+            pdf.ln()
+
+    # Pie de página con fecha de generación
+    pdf.set_y(-15)
+    pdf.set_font("helvetica", "I", 8)
+    pdf.cell(0, 10, f"Generado el {datetime.now().strftime('%d/%m/%Y %H:%M')}", align="R")
+
+    # Generar el PDF en memoria
+    output = io.BytesIO()
+    pdf_content = pdf.output()
+    output.write(pdf_content)
+    output.seek(0)
+
+    nombre_archivo = f"turnos_{usuario.nombre}_{meses_nombres[mes-1]}_{anio}.pdf".replace(" ", "_")
+    
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=nombre_archivo,
+        mimetype="application/pdf"
+    )
+
 #*---------------------------------------------------
 #* GESTIÓN DE TURNOS (SÓLO DIRECCIÓN)
 #*---------------------------------------------------
