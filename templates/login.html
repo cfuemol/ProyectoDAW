@@ -1,14 +1,69 @@
 {% extends "base.html" %} {% block title %}Iniciar sesión{% endblock %} {% block
-content %}
-<h2>Iniciar sesión</h2>
+head %}
+<style>
+  main {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="login-card">
+  <div style="text-align: center; margin-bottom: 2rem">
+    <i
+      class="fas fa-user-shield"
+      style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem"
+    ></i>
+    <h2 style="margin-bottom: 0.5rem">Bienvenido/a</h2>
+    <h2 style="margin-bottom: 0.5rem">UGC Albuñol</h2>
+    <p style="color: var(--text-secondary); font-size: 0.875rem">
+      Ingresa tus credenciales para acceder
+    </p>
+  </div>
 
-<form method="post">
-  <input type="text" name="dni" placeholder="DNI" required />
-  <input type="password" name="password" placeholder="Contraseña" required />
+  <form method="post">
+    <div class="form-group">
+      <label for="dni"><i class="fas fa-id-card"></i> DNI</label>
+      <input type="text" id="dni" name="dni" placeholder="Tu DNI" required />
+    </div>
 
-  <button type="submit">Entrar</button>
-</form>
+    <div class="form-group">
+      <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="••••••••"
+        required
+      />
+    </div>
 
-{% if get_flashed_messages() %}
-<p style="color: red">{{ get_flashed_messages()[0] }}</p>
-{% endif %} {% endblock %}
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-sign-in-alt"></i> Entrar
+    </button>
+  </form>
+
+  {% with messages = get_flashed_messages() %} {% if messages %}
+  <div
+    style="
+      margin-top: 1.5rem;
+      color: var(--danger-color);
+      text-align: center;
+      font-size: 0.875rem;
+      background: rgba(239, 68, 68, 0.1);
+      padding: 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    "
+  >
+    <i class="fas fa-exclamation-circle"></i> {{ messages[0] }}
+  </div>
+  {% endif %} {% endwith %}
+</div>
+{% endblock %}

@@ -1,67 +1,67 @@
-{% extends "base.html" %} {% block title %}Borrar Usuarios{% endblock %} {%
-block nav %}
+{% extends "base.html" %} {% block title %}Borrar Usuarios{% endblock %} {% block nav %}
 <nav class="top-nav">
   <div class="nav-links">
-    <a href="/admin_dashboard">← Volver al Panel</a>
-    <a href="/register">Registrar Usuario</a>
+    <a href="/admin_dashboard"><i class="fas fa-hammer"></i> Panel Admin</a>
+    <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
+    <a href="/borrar_usuarios" style="color: var(--accent-color)"><i class="fas fa-users-cog"></i> Gestionar Usuarios</a>
   </div>
   <div class="nav-actions">
-    <a href="/logout" class="btn-logout">Cerrar Sesión</a>
+    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"><i class="fas fa-key"></i> Cambiar contraseña</a>
+    <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</a>
   </div>
 </nav>
 {% endblock %} {% block content %}
-<h2>Gestión de Usuarios</h2>
-<p>Listado de todos los usuarios registrados en el sistema.</p>
+<div class="animate-in">
+  <h2>Gestión de Usuarios</h2>
+  <p>Listado de todos los usuarios registrados en el sistema.</p>
 
-<table>
-  <thead>
-    <tr>
-      <th class="col-min">DNI</th>
-      <th class="col-name">Nombre y Apellidos</th>
-      <th class="col-min">Categoría</th>
-      <th class="col-min">Rol</th>
-      <th>Email</th>
-      <th class="actions-cell">Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for u in usuarios %}
-    <tr>
-      <td class="col-min" data-label="DNI">{{ u.dni }}</td>
-      <td class="col-name" data-label="Nombre y Apellidos">
-        {{ u.nombre }} {{ u.apellidos }}
-      </td>
-      <td class="col-min" data-label="Categoría">{{ u.categoria }}</td>
-      <td class="col-min" data-label="Rol">{{ u.rol | capitalize }}</td>
-      <td data-label="Email">{{ u.email }}</td>
-      <td class="actions-cell" data-label="Acciones">
-        <!-- Botón Editar -->
-        <a
-          href="/edit_usuario/{{ u.dni }}"
-          class="btn-edit"
-          style="margin-right: 8px; display: inline-block"
-          >Editar</a
-        >
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-min">DNI</th>
+          <th class="col-name">Nombre y Apellidos</th>
+          <th class="col-min">Categoría</th>
+          <th class="col-min">Rol</th>
+          <th>Email</th>
+          <th class="actions-cell">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td class="col-min" data-label="DNI">{{ u.dni }}</td>
+          <td class="col-name" data-label="Nombre y Apellidos">
+            {{ u.nombre }} {{ u.apellidos }}
+          </td>
+          <td class="col-min" data-label="Categoría">{{ u.categoria }}</td>
+          <td class="col-min" data-label="Rol">{{ u.rol | capitalize }}</td>
+          <td data-label="Email">{{ u.email }}</td>
+          <td class="actions-cell" data-label="Acciones">
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <!-- Botón Editar -->
+              <a href="/edit_usuario/{{ u.dni }}" class="btn btn-secondary btn-sm" title="Editar">
+                <i class="fas fa-user-edit"></i>
+              </a>
 
-        <!-- Evitamos que el propio usuario que está logueado se borre a sí mismo -->
-        {% if u.dni != session.get('dni') %}
-        <form
-          action="/borrar_usuario/{{ u.dni }}"
-          method="POST"
-          style="display: inline-block"
-          onsubmit="
-            return confirm('¿Estás seguro de que deseas borrar este usuario?');
-          "
-        >
-          <button type="submit">Borrar</button>
-        </form>
-        {% else %}
-        <span style="color: var(--text-secondary); font-size: 0.8rem"
-          >(Tú)</span
-        >
-        {% endif %}
-      </td>
-    </tr>
+              <!-- Evitamos que el propio usuario que está logueado se borre a sí mismo -->
+              {% if u.dni != session.get('dni') %}
+              <form
+                action="/borrar_usuario/{{ u.dni }}"
+                method="POST"
+                style="display: inline-block"
+                onsubmit="return confirm('¿Estás seguro de que deseas borrar este usuario?');"
+              >
+                <button type="submit" class="btn btn-danger btn-sm" title="Borrar">
+                  <i class="fas fa-user-minus"></i>
+                </button>
+              </form>
+              {% else %}
+              <span style="color: var(--text-secondary); font-size: 0.8rem">(Tú)</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
     {% else %}
     <tr>
       <td colspan="6" style="text-align: center">

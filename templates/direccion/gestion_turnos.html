@@ -107,11 +107,11 @@ block head %}
     color: #3b82f6;
     border: 1px solid rgba(59, 130, 246, 0.2);
   }
-  .location-saliente { 
-    background: rgba(234, 179, 8, 0.15); 
-    color: #facc15; 
-    border: 1px solid var(--accent-color); 
-    box-shadow: 0 0 10px var(--accent-glow); 
+  .location-saliente {
+    background: rgba(234, 179, 8, 0.15);
+    color: #facc15;
+    border: 1px solid var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-glow);
   }
 
   .action-btns {
@@ -173,20 +173,28 @@ block head %}
 {% endblock %} {% block nav %}
 <nav class="top-nav">
   <div class="nav-links">
-    <a href="/direccion_dashboard">Panel Inicio</a>
-    <a href="/register">Registrar Usuario</a>
+    <a href="/direccion_dashboard"><i class="fas fa-chart-line"></i> Inicio</a>
+    <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
     <a href="/gestion_turnos" style="color: var(--accent-color)"
-      >Gestión de Turnos</a
+      ><i class="fas fa-calendar-check"></i> Gestión Turnos</a
     >
-    <a href="/notificaciones_cambios">Notificaciones</a>
+    <a href="/notificaciones_cambios"
+      ><i class="fas fa-bell"></i> Notificaciones</a
+    >
   </div>
   <div class="nav-actions">
-    <a href="/logout" class="btn-logout">Cerrar Sesión</a>
     <a
       href="/descargar_pdf_dia"
-      class="btn-pdf-global"
+      class="btn btn-primary btn-sm btn-pdf-global"
       title="Ver quién trabaja hoy"
-      >📄 ¿Quién trabaja hoy?</a
+    >
+      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
+    </a>
+    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"
+      ><i class="fas fa-key"></i> Cambiar contraseña</a
+    >
+    <a href="/logout" class="btn btn-danger btn-sm"
+      ><i class="fas fa-sign-out-alt"></i> Salir</a
     >
   </div>
 </nav>
@@ -243,21 +251,31 @@ block head %}
           <td>
             <button
               type="button"
-              class="btn-table-del"
+              class="btn btn-danger btn-sm"
               onclick="this.closest('tr').remove()"
             >
-              Eliminar
+              <i class="fas fa-trash"></i>
             </button>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div class="batch-actions">
-      <button type="button" id="add-row" class="btn-action-add">
-        + Añadir Fila
+    <div
+      class="batch-actions"
+      style="display: flex; gap: 1rem; margin-top: 1.5rem"
+    >
+      <button
+        type="button"
+        id="add-row"
+        class="btn btn-secondary"
+        style="width: auto"
+      >
+        <i class="fas fa-plus"></i> Añadir Fila
       </button>
-      <button type="submit" class="btn-action-save">Guardar Cambios</button>
+      <button type="submit" class="btn btn-primary" style="width: auto">
+        <i class="fas fa-save"></i> Guardar Cambios
+      </button>
     </div>
   </form>
 
@@ -305,21 +323,29 @@ block head %}
             </form>
           </td>
           <td>
-            {% set ct = t.centro_trabajo %}
-            {% if 'Urgencias' in ct and '+' in ct %}
-              <span class="location-badge location-dual">{{ ct }}</span>
+            {% set ct = t.centro_trabajo %} {% if 'Urgencias' in ct and '+' in
+            ct %}
+            <span class="location-badge location-dual">{{ ct }}</span>
             {% elif 'Urgencias' in ct %}
-              <span class="location-badge location-urgencias">{{ ct }}</span>
+            <span class="location-badge location-urgencias">{{ ct }}</span>
             {% elif 'Saliente' in ct %}
-              <span class="location-badge location-saliente">{{ ct }}</span>
+            <span class="location-badge location-saliente">{{ ct }}</span>
             {% else %}
-              <span class="location-badge location-centro">{{ ct }}</span>
+            <span class="location-badge location-centro">{{ ct }}</span>
             {% endif %}
           </td>
           <td>
-            <div class="action-btns" id="btns-{{ t.id }}">
-              <button class="btn-table-mod" onclick="toggleMod('{{ t.id }}')">
-                Editar
+            <div
+              class="action-btns"
+              id="btns-{{ t.id }}"
+              style="display: flex; gap: 0.5rem; justify-content: center"
+            >
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                onclick="toggleMod('{{ t.id }}')"
+              >
+                <i class="fas fa-edit"></i>
               </button>
               <form
                 action="/borrar_turno/{{ t.id }}"
@@ -328,10 +354,10 @@ block head %}
               >
                 <button
                   type="submit"
-                  class="btn-table-del"
+                  class="btn btn-danger btn-sm"
                   onclick="return confirm('¿Borrar turno?');"
                 >
-                  Borrar
+                  <i class="fas fa-trash"></i>
                 </button>
               </form>
             </div>

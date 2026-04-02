@@ -4,10 +4,13 @@
 {% block nav %}
 <nav class="top-nav">
   <div class="nav-links">
-    <a href="/borrar_usuarios">← Volver al Listado</a>
+    <a href="/admin_dashboard"><i class="fas fa-hammer"></i> Panel Admin</a>
+    <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
+    <a href="/borrar_usuarios" style="color: var(--accent-color)"><i class="fas fa-users-cog"></i> Gestionar Usuarios</a>
   </div>
   <div class="nav-actions">
-    <a href="/logout" class="btn-logout">Cerrar Sesión</a>
+    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"><i class="fas fa-key"></i> Cambiar contraseña</a>
+    <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</a>
   </div>
 </nav>
 {% endblock %} 
@@ -71,7 +74,7 @@
     <p style="font-size: 0.8em; color: var(--text-secondary); margin: 5px 0 0 0;">Solo para Médicos/as y DUEs con rol profesional.</p>
   </div>
 
-  <button type="submit">Actualizar Usuario</button>
+  <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Actualizar Usuario</button>
 </form>
 
 <script>

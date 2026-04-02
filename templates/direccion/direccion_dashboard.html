@@ -3,20 +3,29 @@ block nav %}
 <nav class="top-nav">
   <div class="nav-links">
     <a href="/direccion_dashboard" style="color: var(--accent-color)"
-      >Panel Inicio</a
+      ><i class="fas fa-chart-line"></i> Inicio</a
     >
-    <a href="/register">Registrar Usuario</a>
-    <a href="/gestion_turnos">Gestión de Turnos</a>
-    <a href="/notificaciones_cambios">Notificaciones</a>
+    <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
+    <a href="/gestion_turnos"
+      ><i class="fas fa-calendar-check"></i> Gestión Turnos</a
+    >
+    <a href="/notificaciones_cambios"
+      ><i class="fas fa-bell"></i> Notificaciones</a
+    >
   </div>
   <div class="nav-actions">
-    <a href="/cambiar_password" class="btn-password">Cambiar Contraseña</a>
-    <a href="/logout" class="btn-logout">Cerrar Sesión</a>
     <a
       href="/descargar_pdf_dia"
-      class="btn-pdf-global"
+      class="btn btn-primary btn-sm btn-pdf-global"
       title="Ver quién trabaja hoy"
-      >📄 ¿Quién trabaja hoy?</a
+    >
+      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
+    </a>
+    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"
+      ><i class="fas fa-key"></i> Cambiar contraseña</a
+    >
+    <a href="/logout" class="btn btn-danger btn-sm"
+      ><i class="fas fa-sign-out-alt"></i> Salir</a
     >
   </div>
 </nav>

@@ -2,20 +2,28 @@
 %} {% block nav %}
 <nav class="top-nav">
   <div class="nav-links">
-    <a href="/direccion_dashboard">Panel Inicio</a>
-    <a href="/register">Registrar Usuario</a>
-    <a href="/gestion_turnos">Gestión de Turnos</a>
+    <a href="/direccion_dashboard"><i class="fas fa-chart-line"></i> Inicio</a>
+    <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
+    <a href="/gestion_turnos"
+      ><i class="fas fa-calendar-check"></i> Gestión Turnos</a
+    >
     <a href="/notificaciones_cambios" style="color: var(--accent-color)"
-      >Notificaciones</a
+      ><i class="fas fa-bell"></i> Notificaciones</a
     >
   </div>
   <div class="nav-actions">
-    <a href="/logout" class="btn-logout">Cerrar Sesión</a>
     <a
       href="/descargar_pdf_dia"
-      class="btn-pdf-global"
+      class="btn btn-primary btn-sm btn-pdf-global"
       title="Ver quién trabaja hoy"
-      >📄 ¿Quién trabaja hoy?</a
+    >
+      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
+    </a>
+    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"
+      ><i class="fas fa-key"></i> Cambiar contraseña</a
+    >
+    <a href="/logout" class="btn btn-danger btn-sm"
+      ><i class="fas fa-sign-out-alt"></i> Salir</a
     >
   </div>
 </nav>
@@ -38,47 +46,61 @@
         </tr>
       </thead>
       <tbody>
-        {% for c in cambios %}
-        {% if c.estado == 'aceptado' %}
+        {% for c in cambios %} {% if c.estado == 'aceptado' %}
         <tr>
           <!-- Profesional 1 -->
-          <td style="text-align: left;">
-            <div style="font-weight: 600;">{{ c.profesional1.nombre }} {{ c.profesional1.apellidos }}</div>
-            <div style="font-size: 0.85em; color: var(--text-secondary);">{{ c.profesional1.categoria }}</div>
+          <td style="text-align: left">
+            <div style="font-weight: 600">
+              {{ c.profesional1.nombre }} {{ c.profesional1.apellidos }}
+            </div>
+            <div style="font-size: 0.85em; color: var(--text-secondary)">
+              {{ c.profesional1.categoria }}
+            </div>
           </td>
           <td>
-            <div style="font-weight: 500;">{{ c.fecha_original.strftime('%d/%m/%Y') }}</div>
+            <div style="font-weight: 500">
+              {{ c.fecha_original.strftime('%d/%m/%Y') }}
+            </div>
             {% if c.tipo_p1 %}
-              <span class="badge badge-{{ c.tipo_p1 }}">{{ c.tipo_p1 }}</span>
+            <span class="badge badge-{{ c.tipo_p1 }}">{{ c.tipo_p1 }}</span>
             {% endif %}
           </td>
-          <td style="background-color: rgba(var(--accent-color-rgb), 0.05);">
-            <div style="font-weight: 600; color: var(--accent-color);">{{ c.fecha_final.strftime('%d/%m/%Y') }}</div>
+          <td style="background-color: rgba(var(--accent-color-rgb), 0.05)">
+            <div style="font-weight: 600; color: var(--accent-color)">
+              {{ c.fecha_final.strftime('%d/%m/%Y') }}
+            </div>
             {% if c.tipo_p2 %}
-              <span class="badge badge-{{ c.tipo_p2 }}">{{ c.tipo_p2 }}</span>
+            <span class="badge badge-{{ c.tipo_p2 }}">{{ c.tipo_p2 }}</span>
             {% endif %}
           </td>
 
           <!-- Profesional 2 -->
-          <td style="text-align: left;">
-            <div style="font-weight: 600;">{{ c.profesional2.nombre }} {{ c.profesional2.apellidos }}</div>
-            <div style="font-size: 0.85em; color: var(--text-secondary);">{{ c.profesional2.categoria }}</div>
+          <td style="text-align: left">
+            <div style="font-weight: 600">
+              {{ c.profesional2.nombre }} {{ c.profesional2.apellidos }}
+            </div>
+            <div style="font-size: 0.85em; color: var(--text-secondary)">
+              {{ c.profesional2.categoria }}
+            </div>
           </td>
           <td>
-            <div style="font-weight: 500;">{{ c.fecha_final.strftime('%d/%m/%Y') }}</div>
+            <div style="font-weight: 500">
+              {{ c.fecha_final.strftime('%d/%m/%Y') }}
+            </div>
             {% if c.tipo_p2 %}
-              <span class="badge badge-{{ c.tipo_p2 }}">{{ c.tipo_p2 }}</span>
+            <span class="badge badge-{{ c.tipo_p2 }}">{{ c.tipo_p2 }}</span>
             {% endif %}
           </td>
-          <td style="background-color: rgba(var(--accent-color-rgb), 0.05);">
-            <div style="font-weight: 600; color: var(--accent-color);">{{ c.fecha_original.strftime('%d/%m/%Y') }}</div>
+          <td style="background-color: rgba(var(--accent-color-rgb), 0.05)">
+            <div style="font-weight: 600; color: var(--accent-color)">
+              {{ c.fecha_original.strftime('%d/%m/%Y') }}
+            </div>
             {% if c.tipo_p1 %}
-              <span class="badge badge-{{ c.tipo_p1 }}">{{ c.tipo_p1 }}</span>
+            <span class="badge badge-{{ c.tipo_p1 }}">{{ c.tipo_p1 }}</span>
             {% endif %}
           </td>
         </tr>
-        {% endif %}
-        {% endfor %}
+        {% endif %} {% endfor %}
       </tbody>
     </table>
   </div>
@@ -104,8 +126,20 @@
     display: inline-block;
     margin-top: 4px;
   }
-  .badge-7h { background-color: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.2); }
-  .badge-17h { background-color: rgba(234, 179, 8, 0.1); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.4); }
-  .badge-24h { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+  .badge-7h {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+  .badge-17h {
+    background-color: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.4);
+  }
+  .badge-24h {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
 </style>
 {% endblock %}

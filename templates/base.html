@@ -5,13 +5,14 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="/static/css/styles_base.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     {% block head %}{% endblock %}
   </head>
   <body>
     <!-- Botón de tema flotante persistente -->
     <div class="theme-switch-wrapper">
       <button id="theme-toggle" class="theme-btn" title="Cambiar Tema">
-        <span class="icon">🌓</span>
+        <span class="icon"><i class="fas fa-moon"></i></span>
       </button>
     </div>
 
@@ -29,11 +30,13 @@
 
     <script>
       const toggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = toggleBtn.querySelector("i");
       const rootElement = document.documentElement;
 
       // Comprobar si hay un tema guardado, sino usar oscuro por defecto
       const savedTheme = localStorage.getItem("theme") || "dark";
       rootElement.setAttribute("data-theme", savedTheme);
+      updateIcon(savedTheme);
 
       toggleBtn.addEventListener("click", () => {
         const currentTheme = rootElement.getAttribute("data-theme");
@@ -41,7 +44,16 @@
 
         rootElement.setAttribute("data-theme", newTheme);
         localStorage.setItem("theme", newTheme);
+        updateIcon(newTheme);
       });
+
+      function updateIcon(theme) {
+        if (theme === "dark") {
+          themeIcon.className = "fas fa-moon";
+        } else {
+          themeIcon.className = "fas fa-sun";
+        }
+      }
 
       // Función para desaparecer alertas automáticamente a los 10 segundos
       window.autoDismissAlert = function(alertElement) {
