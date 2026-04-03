@@ -168,6 +168,15 @@
             });
           });
         }
+        // Manejo responsivo de los acordeones de navegación
+        const isMobile = window.innerWidth <= 1024;
+        document.querySelectorAll('.nav-section').forEach(section => {
+          if (isMobile) {
+            section.removeAttribute('open');
+          } else {
+            section.setAttribute('open', '');
+          }
+        });
       });
     </script>
   </body>

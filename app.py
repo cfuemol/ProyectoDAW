@@ -100,6 +100,37 @@ def asignar_saliente_automatico(turno_guardia):
     # Incrementar conteo
     elegido.update(inc__total_salientes=1)
 
+@app.context_processor
+def inject_global_data():
+    """Inyecta datos globales en todas las plantillas."""
+    if 'dni' not in session:
+        return dict(solicitudes_pendientes_count=0, notificaciones_pendientes_count=0, usuario=None)
+    
+    rol = session.get('rol')
+    dni = session.get('dni')
+    
+    solicitudes_count = 0
+    notificaciones_count = 0
+    usuario = Usuario.objects(dni=dni).first()
+    
+    try:
+        if rol == 'profesional' and usuario:
+            # Solicitudes pendientes para el profesional actual
+            solicitudes_count = Cambio.objects(profesional2=usuario, estado='pendiente').count()
+        
+        elif rol == 'direccion':
+            # Cambios aceptados o rechazados que el director no ha visto
+            notificaciones_count = Cambio.objects(estado__in=['aceptado', 'rechazado'], visto_por_direccion=False).count()
+    except Exception:
+        pass
+        
+    return dict(
+        solicitudes_pendientes_count=solicitudes_count,
+        notificaciones_pendientes_count=notificaciones_count,
+        usuario=usuario
+    )
+
+
 #*---------------------------------
 #* LOGIN
 #*---------------------------------
@@ -599,6 +630,8 @@ def gestion_turnos():
 def notificaciones_cambios():
     # Obtener todos los cambios de turno registrados
     cambios = Cambio.objects().order_by('-fecha_original')
+    # Al entrar aquí, marcamos todos los aceptados/rechazados como vistos por el director
+    Cambio.objects(estado__in=['aceptado', 'rechazado'], visto_por_direccion=False).update(set__visto_por_direccion=True)
     return render_template("direccion/notificaciones_cambios.html", cambios=cambios)
 
 @app.route("/descargar_pdf_dia")
@@ -802,6 +835,7 @@ def responder_cambio(cambio_id, accion):
 
     if accion == "rechazar":
         cambio.estado = 'rechazado'
+        cambio.visto_por_direccion = False
         cambio.save()
         flash("Has rechazado el cambio de turno.", "success")
         return redirect(url_for("solicitudes_cambio"))
@@ -847,6 +881,7 @@ def responder_cambio(cambio_id, accion):
             asignar_saliente_automatico(turno_p2)
 
         cambio.estado = 'aceptado'
+        cambio.visto_por_direccion = False
         cambio.save()
 
         flash("Cambio de turno aceptado con éxito.", "success")

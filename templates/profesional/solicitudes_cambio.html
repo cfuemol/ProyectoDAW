@@ -2,22 +2,7 @@
 {% block title %}Solicitudes de Cambio{% endblock %} 
 
 {% block nav %}
-<nav class="top-nav">
-  <div class="nav-links">
-    <a href="/profesional_dashboard"><i class="fas fa-home"></i> Mi Dashboard</a>
-    <a href="/profesional/ver_cuadrante"><i class="fas fa-calendar-alt"></i> Ver Cuadrante</a>
-    <a href="/profesional/pedir_cambio"><i class="fas fa-exchange-alt"></i> Pedir Cambio</a>
-    <a href="/profesional/solicitudes_cambio" style="color: var(--accent-color)"><i class="fas fa-envelope-open-text"></i> Solicitudes</a>
-    <a href="/profesional/historico_cambios"><i class="fas fa-history"></i> Histórico</a>
-  </div>
-  <div class="nav-actions">
-    <a href="/descargar_pdf_dia" class="btn btn-primary btn-sm btn-pdf-global" title="Ver quién trabaja hoy">
-      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
-    </a>
-    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"><i class="fas fa-key"></i> Cambiar contraseña</a>
-    <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</a>
-  </div>
-</nav>
+{% include 'includes/nav_profesional.html' %}
 {% endblock %} 
 
 {% block content %}
@@ -26,37 +11,41 @@
   <p>Compañeros que han solicitado intercambiar un turno contigo.</p>
 
   {% if solicitudes|length > 0 %}
-  <table>
-    <thead>
-      <tr>
-        <th>Compañero Solicitante</th>
-        <th>Turno que te ofrece</th>
-        <th>Tu turno a cancelar</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sol in solicitudes %}
-      <tr>
-        <td style="font-weight: 500">{{ sol.profesional1.nombre }} {{ sol.profesional1.apellidos }}</td>
-        <td>{{ sol.fecha_original.strftime('%d/%m/%Y') }}</td>
-        <td>{{ sol.fecha_final.strftime('%d/%m/%Y') }}</td>
-        <td style="display: flex; gap: 10px;">
-          <form method="POST" action="/profesional/responder_cambio/{{ sol.id }}/aceptar" style="margin:0;">
-            <button type="submit" class="btn btn-primary btn-sm" style="width: auto;">
-              <i class="fas fa-check"></i> Aceptar
-            </button>
-          </form>
-          <form method="POST" method="POST" action="/profesional/responder_cambio/{{ sol.id }}/rechazar" style="margin:0;">
-            <button type="submit" class="btn btn-danger btn-sm" style="width: auto;">
-              <i class="fas fa-times"></i> Rechazar
-            </button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Compañero</th>
+          <th>Turno ofrecido</th>
+          <th>Turno a cancelar</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sol in solicitudes %}
+        <tr>
+          <td data-label="Compañero" style="font-weight: 500">{{ sol.profesional1.nombre }} {{ sol.profesional1.apellidos }}</td>
+          <td data-label="Ofrece">{{ sol.fecha_original.strftime('%d/%m/%Y') }}</td>
+          <td data-label="Tu Turno">{{ sol.fecha_final.strftime('%d/%m/%Y') }}</td>
+          <td class="actions-cell" data-label="Acciones">
+            <div style="display: flex; gap: 20px; width: 100%; justify-content: center;">
+              <form method="POST" action="/profesional/responder_cambio/{{ sol.id }}/aceptar" style="margin:0; flex: 1;">
+                <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+                  <i class="fas fa-check"></i> Aceptar
+                </button>
+              </form>
+              <form method="POST" action="/profesional/responder_cambio/{{ sol.id }}/rechazar" style="margin:0; flex: 1;">
+                <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">
+                  <i class="fas fa-times"></i> Rechazar
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% else %}
   <div class="form-container" style="text-align: center; padding: 40px">
     <p style="color: var(--text-secondary)">No tienes solicitudes de cambio pendientes.</p>

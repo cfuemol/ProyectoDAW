@@ -1,0 +1,31 @@
+<nav class="top-nav">
+  <details class="nav-section">
+    <summary class="nav-summary">Navegación</summary>
+    <div class="nav-links">
+      <a href="/profesional_dashboard"><i class="fas fa-home"></i> Mi Dashboard</a>
+      <a href="/profesional/ver_cuadrante"><i class="fas fa-calendar-alt"></i> Ver Cuadrante</a>
+      {% set categorias_permitidas = ["Médico/a", "DUE", "Celador/a-Conductor/a"] %} 
+      {% if usuario.categoria in categorias_permitidas %}
+      <a href="/profesional/pedir_cambio"><i class="fas fa-exchange-alt"></i> Pedir Cambio</a>
+      <a href="/profesional/solicitudes_cambio" class="nav-item-relative">
+        <i class="fas fa-envelope-open-text"></i> Solicitudes
+        {% if solicitudes_pendientes_count > 0 %}
+        <span class="nav-badge">{{ solicitudes_pendientes_count }}</span>
+        {% endif %}
+      </a>
+      <a href="/profesional/historico_cambios"><i class="fas fa-history"></i> Histórico</a>
+      {% endif %}
+    </div>
+  </details>
+
+  <details class="nav-section">
+    <summary class="nav-summary">Mi Cuenta</summary>
+    <div class="nav-actions">
+      <a href="/descargar_pdf_dia" class="btn btn-primary btn-sm btn-pdf-global" title="Ver quién trabaja hoy">
+        <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
+      </a>
+      <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"><i class="fas fa-key"></i> Cambiar contraseña</a>
+      <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</a>
+    </div>
+  </details>
+</nav>

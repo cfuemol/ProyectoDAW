@@ -1,0 +1,27 @@
+<nav class="top-nav">
+  <details class="nav-section">
+    <summary class="nav-summary">Navegación</summary>
+    <div class="nav-links">
+      <a href="/direccion_dashboard"><i class="fas fa-chart-line"></i> Inicio</a>
+      <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
+      <a href="/gestion_turnos"><i class="fas fa-calendar-check"></i> Gestión Turnos</a>
+      <a href="/notificaciones_cambios" class="nav-item-relative">
+        <i class="fas fa-bell"></i> Notificaciones
+        {% if notificaciones_pendientes_count > 0 %}
+        <span class="nav-badge">{{ notificaciones_pendientes_count }}</span>
+        {% endif %}
+      </a>
+    </div>
+  </details>
+
+  <details class="nav-section">
+    <summary class="nav-summary">Mi Cuenta</summary>
+    <div class="nav-actions">
+      <a href="/descargar_pdf_dia" class="btn btn-primary btn-sm btn-pdf-global" title="Ver quién trabaja hoy">
+        <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
+      </a>
+      <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"><i class="fas fa-key"></i> Cambiar contraseña</a>
+      <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</a>
+    </div>
+  </details>
+</nav>

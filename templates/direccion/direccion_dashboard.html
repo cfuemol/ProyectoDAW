@@ -1,34 +1,6 @@
 {% extends "base.html" %} {% block title %}Panel Dirección{% endblock %} {%
 block nav %}
-<nav class="top-nav">
-  <div class="nav-links">
-    <a href="/direccion_dashboard" style="color: var(--accent-color)"
-      ><i class="fas fa-chart-line"></i> Inicio</a
-    >
-    <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
-    <a href="/gestion_turnos"
-      ><i class="fas fa-calendar-check"></i> Gestión Turnos</a
-    >
-    <a href="/notificaciones_cambios"
-      ><i class="fas fa-bell"></i> Notificaciones</a
-    >
-  </div>
-  <div class="nav-actions">
-    <a
-      href="/descargar_pdf_dia"
-      class="btn btn-primary btn-sm btn-pdf-global"
-      title="Ver quién trabaja hoy"
-    >
-      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
-    </a>
-    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"
-      ><i class="fas fa-key"></i> Cambiar contraseña</a
-    >
-    <a href="/logout" class="btn btn-danger btn-sm"
-      ><i class="fas fa-sign-out-alt"></i> Salir</a
-    >
-  </div>
-</nav>
+{% include 'includes/nav_direccion.html' %}
 {% endblock %} {% block content %}
 <div class="animate-in">
   <h2>Panel de Dirección</h2>

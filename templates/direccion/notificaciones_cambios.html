@@ -1,32 +1,6 @@
 {% extends "base.html" %} {% block title %}Notificaciones de Cambios{% endblock
 %} {% block nav %}
-<nav class="top-nav">
-  <div class="nav-links">
-    <a href="/direccion_dashboard"><i class="fas fa-chart-line"></i> Inicio</a>
-    <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
-    <a href="/gestion_turnos"
-      ><i class="fas fa-calendar-check"></i> Gestión Turnos</a
-    >
-    <a href="/notificaciones_cambios" style="color: var(--accent-color)"
-      ><i class="fas fa-bell"></i> Notificaciones</a
-    >
-  </div>
-  <div class="nav-actions">
-    <a
-      href="/descargar_pdf_dia"
-      class="btn btn-primary btn-sm btn-pdf-global"
-      title="Ver quién trabaja hoy"
-    >
-      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
-    </a>
-    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"
-      ><i class="fas fa-key"></i> Cambiar contraseña</a
-    >
-    <a href="/logout" class="btn btn-danger btn-sm"
-      ><i class="fas fa-sign-out-alt"></i> Salir</a
-    >
-  </div>
-</nav>
+{% include 'includes/nav_direccion.html' %}
 {% endblock %} {% block content %}
 <div class="animate-in">
   <h2>Historial de Cambios de Turno</h2>
@@ -49,15 +23,15 @@
         {% for c in cambios %} {% if c.estado == 'aceptado' %}
         <tr>
           <!-- Profesional 1 -->
-          <td style="text-align: left">
+          <td data-label="Profesional 1" style="text-align: left">
             <div style="font-weight: 600">
               {{ c.profesional1.nombre }} {{ c.profesional1.apellidos }}
             </div>
-            <div style="font-size: 0.85em; color: var(--text-secondary)">
+            <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 4px;">
               {{ c.profesional1.categoria }}
             </div>
           </td>
-          <td>
+          <td data-label="Su Turno Original">
             <div style="font-weight: 500">
               {{ c.fecha_original.strftime('%d/%m/%Y') }}
             </div>
@@ -65,7 +39,7 @@
             <span class="badge badge-{{ c.tipo_p1 }}">{{ c.tipo_p1 }}</span>
             {% endif %}
           </td>
-          <td style="background-color: rgba(var(--accent-color-rgb), 0.05)">
+          <td data-label="➡ Su Nuevo Turno" style="background-color: rgba(var(--accent-color-rgb), 0.05)">
             <div style="font-weight: 600; color: var(--accent-color)">
               {{ c.fecha_final.strftime('%d/%m/%Y') }}
             </div>
@@ -75,15 +49,15 @@
           </td>
 
           <!-- Profesional 2 -->
-          <td style="text-align: left">
+          <td data-label="Profesional 2" style="text-align: left">
             <div style="font-weight: 600">
               {{ c.profesional2.nombre }} {{ c.profesional2.apellidos }}
             </div>
-            <div style="font-size: 0.85em; color: var(--text-secondary)">
+            <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 4px;">
               {{ c.profesional2.categoria }}
             </div>
           </td>
-          <td>
+          <td data-label="Su Turno Original">
             <div style="font-weight: 500">
               {{ c.fecha_final.strftime('%d/%m/%Y') }}
             </div>
@@ -91,7 +65,7 @@
             <span class="badge badge-{{ c.tipo_p2 }}">{{ c.tipo_p2 }}</span>
             {% endif %}
           </td>
-          <td style="background-color: rgba(var(--accent-color-rgb), 0.05)">
+          <td data-label="➡ Su Nuevo Turno" style="background-color: rgba(var(--accent-color-rgb), 0.05)">
             <div style="font-weight: 600; color: var(--accent-color)">
               {{ c.fecha_original.strftime('%d/%m/%Y') }}
             </div>

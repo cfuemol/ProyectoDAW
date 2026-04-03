@@ -171,33 +171,7 @@ block head %}
   }
 </style>
 {% endblock %} {% block nav %}
-<nav class="top-nav">
-  <div class="nav-links">
-    <a href="/direccion_dashboard"><i class="fas fa-chart-line"></i> Inicio</a>
-    <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
-    <a href="/gestion_turnos" style="color: var(--accent-color)"
-      ><i class="fas fa-calendar-check"></i> Gestión Turnos</a
-    >
-    <a href="/notificaciones_cambios"
-      ><i class="fas fa-bell"></i> Notificaciones</a
-    >
-  </div>
-  <div class="nav-actions">
-    <a
-      href="/descargar_pdf_dia"
-      class="btn btn-primary btn-sm btn-pdf-global"
-      title="Ver quién trabaja hoy"
-    >
-      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
-    </a>
-    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"
-      ><i class="fas fa-key"></i> Cambiar contraseña</a
-    >
-    <a href="/logout" class="btn btn-danger btn-sm"
-      ><i class="fas fa-sign-out-alt"></i> Salir</a
-    >
-  </div>
-</nav>
+{% include 'includes/nav_direccion.html' %}
 {% endblock %} {% block content %}
 <div class="animate-in">
   <h2>Gestión de Cuadrante</h2>
@@ -207,59 +181,61 @@ block head %}
   </div>
 
   <form method="POST" action="/gestion_turnos" id="batch-form">
-    <table id="batch-table" class="batch-table">
-      <thead>
-        <tr>
-          <th>Profesional</th>
-          <th>Fecha</th>
-          <th>Tipo de Turno</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody id="batch-body">
-        <tr class="batch-row">
-          <td>
-            <select
-              name="profesional_dni[]"
-              required
-              onchange="filterQuadrant(this.value)"
-            >
-              <option value="">Seleccionar profesional...</option>
-              {% for p in profesionales %}
-              <option value="{{ p.dni }}">
-                {{ p.nombre }} {{ p.apellidos }} ({{ p.categoria }})
-              </option>
-              {% endfor %}
-            </select>
-          </td>
-          <td>
-            <input
-              type="text"
-              name="fecha[]"
-              class="date-picker"
-              required
-              placeholder="Seleccionar fecha"
-            />
-          </td>
-          <td>
-            <select name="tipo[]" required>
-              <option value="7h">7h (Consulta)</option>
-              <option value="17h">17h (Guardia)</option>
-              <option value="24h">24h (Festivo / Completo)</option>
-            </select>
-          </td>
-          <td>
-            <button
-              type="button"
-              class="btn btn-danger btn-sm"
-              onclick="this.closest('tr').remove()"
-            >
-              <i class="fas fa-trash"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table id="batch-table" class="batch-table">
+        <thead>
+          <tr>
+            <th>Profesional</th>
+            <th>Fecha</th>
+            <th>Tipo de Turno</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="batch-body">
+          <tr class="batch-row">
+            <td data-label="Profesional">
+              <select
+                name="profesional_dni[]"
+                required
+                onchange="filterQuadrant(this.value)"
+              >
+                <option value="">Seleccionar profesional...</option>
+                {% for p in profesionales %}
+                <option value="{{ p.dni }}">
+                  {{ p.nombre }} {{ p.apellidos }} ({{ p.categoria }})
+                </option>
+                {% endfor %}
+              </select>
+            </td>
+            <td data-label="Fecha">
+              <input
+                type="text"
+                name="fecha[]"
+                class="date-picker"
+                required
+                placeholder="Seleccionar fecha"
+              />
+            </td>
+            <td data-label="Tipo">
+              <select name="tipo[]" required>
+                <option value="7h">7h (Consulta)</option>
+                <option value="17h">17h (Guardia)</option>
+                <option value="24h">24h (Festivo / Completo)</option>
+              </select>
+            </td>
+            <td data-label="Acción">
+              <button
+                type="button"
+                class="btn btn-danger btn-sm"
+                onclick="this.closest('tr').remove()"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div
       class="batch-actions"
@@ -285,87 +261,89 @@ block head %}
       <h3>Cuadrante Existente</h3>
     </div>
 
-    <table class="batch-table">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Profesional</th>
-          <th>Turno</th>
-          <th>Ubicación</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for t in turnos %}
-        <tr class="quadrant-row" data-dni="{{ t.profesional.dni }}">
-          <td>{{ t.fecha.strftime('%d/%m/%Y') }}</td>
-          <td>{{ t.profesional.nombre }} {{ t.profesional.apellidos }}</td>
-          <td>
-            <span id="label-tipo-{{ t.id }}">{{ t.tipo }}</span>
-            <form
-              action="/modificar_turno/{{ t.id }}"
-              method="POST"
-              class="modify-form"
-              id="form-mod-{{ t.id }}"
-            >
-              <select name="tipo" style="padding: 2px">
-                <option value="7h" {% if t.tipo == '7h' %}selected{% endif %}>
-                  7h
-                </option>
-                <option value="17h" {% if t.tipo == '17h' %}selected{% endif %}>
-                  17h
-                </option>
-                <option value="24h" {% if t.tipo == '24h' %}selected{% endif %}>
-                  24h
-                </option>
-              </select>
-              <button type="submit" class="btn-table-mod">✓</button>
-            </form>
-          </td>
-          <td>
-            {% set ct = t.centro_trabajo %} {% if 'Urgencias' in ct and '+' in
-            ct %}
-            <span class="location-badge location-dual">{{ ct }}</span>
-            {% elif 'Urgencias' in ct %}
-            <span class="location-badge location-urgencias">{{ ct }}</span>
-            {% elif 'Saliente' in ct %}
-            <span class="location-badge location-saliente">{{ ct }}</span>
-            {% else %}
-            <span class="location-badge location-centro">{{ ct }}</span>
-            {% endif %}
-          </td>
-          <td>
-            <div
-              class="action-btns"
-              id="btns-{{ t.id }}"
-              style="display: flex; gap: 0.5rem; justify-content: center"
-            >
-              <button
-                type="button"
-                class="btn btn-secondary btn-sm"
-                onclick="toggleMod('{{ t.id }}')"
-              >
-                <i class="fas fa-edit"></i>
-              </button>
+    <div class="table-container">
+      <table class="batch-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Profesional</th>
+            <th>Turno</th>
+            <th>Ubicación</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in turnos %}
+          <tr class="quadrant-row" data-dni="{{ t.profesional.dni }}">
+            <td data-label="Fecha">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
+            <td data-label="Profesional">{{ t.profesional.nombre }} {{ t.profesional.apellidos }}</td>
+            <td data-label="Turno">
+              <span id="label-tipo-{{ t.id }}">{{ t.tipo }}</span>
               <form
-                action="/borrar_turno/{{ t.id }}"
+                action="/modificar_turno/{{ t.id }}"
                 method="POST"
-                style="display: inline"
+                class="modify-form"
+                id="form-mod-{{ t.id }}"
+              >
+                <select name="tipo" style="padding: 2px">
+                  <option value="7h" {% if t.tipo == '7h' %}selected{% endif %}>
+                    7h
+                  </option>
+                  <option value="17h" {% if t.tipo == '17h' %}selected{% endif %}>
+                    17h
+                  </option>
+                  <option value="24h" {% if t.tipo == '24h' %}selected{% endif %}>
+                    24h
+                  </option>
+                </select>
+                <button type="submit" class="btn-table-mod">✓</button>
+              </form>
+            </td>
+            <td data-label="Ubicación">
+              {% set ct = t.centro_trabajo %} {% if 'Urgencias' in ct and '+' in
+              ct %}
+              <span class="location-badge location-dual">{{ ct }}</span>
+              {% elif 'Urgencias' in ct %}
+              <span class="location-badge location-urgencias">{{ ct }}</span>
+              {% elif 'Saliente' in ct %}
+              <span class="location-badge location-saliente">{{ ct }}</span>
+              {% else %}
+              <span class="location-badge location-centro">{{ ct }}</span>
+              {% endif %}
+            </td>
+            <td data-label="Acciones">
+              <div
+                class="action-btns"
+                id="btns-{{ t.id }}"
+                style="display: flex; gap: 0.5rem; justify-content: center"
               >
                 <button
-                  type="submit"
-                  class="btn btn-danger btn-sm"
-                  onclick="return confirm('¿Borrar turno?');"
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  onclick="toggleMod('{{ t.id }}')"
                 >
-                  <i class="fas fa-trash"></i>
+                  <i class="fas fa-edit"></i>
                 </button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+                <form
+                  action="/borrar_turno/{{ t.id }}"
+                  method="POST"
+                  style="display: inline"
+                >
+                  <button
+                    type="submit"
+                    class="btn btn-danger btn-sm"
+                    onclick="return confirm('¿Borrar turno?');"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

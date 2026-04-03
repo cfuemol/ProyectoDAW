@@ -1,46 +1,10 @@
 {% extends "base.html" %} {% block title %}Registrar Usuario{% endblock %} {%
 block nav %}
-<nav class="top-nav">
-  <div class="nav-links">
-    {% if session['rol'] == 'administrador' %}
-    <a href="/admin_dashboard"><i class="fas fa-hammer"></i> Panel Admin</a>
-    <a href="/register" style="color: var(--accent-color)"
-      ><i class="fas fa-user-plus"></i> Registrar Usuario</a
-    >
-    <a href="/borrar_usuarios"
-      ><i class="fas fa-users-cog"></i> Gestionar Usuarios</a
-    >
-    {% elif session['rol'] == 'direccion' %}
-    <a href="/direccion_dashboard"><i class="fas fa-chart-line"></i> Inicio</a>
-    <a href="/register" style="color: var(--accent-color)"
-      ><i class="fas fa-user-plus"></i> Registrar Usuario</a
-    >
-    <a href="/gestion_turnos"
-      ><i class="fas fa-calendar-check"></i> Gestión Turnos</a
-    >
-    <a href="/notificaciones_cambios"
-      ><i class="fas fa-bell"></i> Notificaciones</a
-    >
-    {% endif %}
-  </div>
-  <div class="nav-actions">
-    {% if session['rol'] == 'direccion' %}
-    <a
-      href="/descargar_pdf_dia"
-      class="btn btn-primary btn-sm btn-pdf-global"
-      title="Ver quién trabaja hoy"
-    >
-      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
-    </a>
-    {% endif %}
-    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"
-      ><i class="fas fa-key"></i> Cambiar contraseña</a
-    >
-    <a href="/logout" class="btn btn-danger btn-sm"
-      ><i class="fas fa-sign-out-alt"></i> Salir</a
-    >
-  </div>
-</nav>
+{% if session['rol'] == 'administrador' %}
+  {% include 'includes/nav_admin.html' %}
+{% elif session['rol'] == 'direccion' %}
+  {% include 'includes/nav_direccion.html' %}
+{% endif %}
 {% endblock %} {% block content %}
 <h2>Registrar Nuevo Usuario</h2>
 

@@ -1,23 +1,5 @@
 {% extends "base.html" %} {% block title %}Panel Profesional{% endblock %} {% block nav %}
-<nav class="top-nav">
-  <div class="nav-links">
-    <a href="/profesional_dashboard" style="color: var(--accent-color)"><i class="fas fa-home"></i> Mi Dashboard</a>
-    <a href="/profesional/ver_cuadrante"><i class="fas fa-calendar-alt"></i> Ver Cuadrante</a>
-    {% set categorias_permitidas = ["Médico/a", "DUE", "Celador/a-Conductor/a"] %} 
-    {% if usuario.categoria in categorias_permitidas %}
-    <a href="/profesional/pedir_cambio"><i class="fas fa-exchange-alt"></i> Pedir Cambio</a>
-    <a href="/profesional/solicitudes_cambio"><i class="fas fa-envelope-open-text"></i> Solicitudes</a>
-    <a href="/profesional/historico_cambios"><i class="fas fa-history"></i> Histórico</a>
-    {% endif %}
-  </div>
-  <div class="nav-actions">
-    <a href="/descargar_pdf_dia" class="btn btn-primary btn-sm btn-pdf-global" title="Ver quién trabaja hoy">
-      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
-    </a>
-    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"><i class="fas fa-key"></i> Cambiar contraseña</a>
-    <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</a>
-  </div>
-</nav>
+{% include 'includes/nav_profesional.html' %}
 {% endblock %} {% block content %}
 <div class="hero-section text-center animate-in">
   <h1>Bienvenido/a, {{ usuario.nombre }} {{ usuario.apellidos }}</h1>

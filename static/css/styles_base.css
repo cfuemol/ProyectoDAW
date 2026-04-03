@@ -107,6 +107,23 @@ nav {
     transition: all var(--transition-speed);
 }
 
+.nav-section {
+    display: contents; /* Desaparece el contenedor en desktop para mantener layout original */
+}
+
+.nav-section[open] > div {
+    display: flex !important;
+}
+
+.nav-summary {
+    display: none; /* Ocultar títulos en desktop */
+    list-style: none; /* Quitar flecha nativa */
+}
+
+.nav-summary::-webkit-details-marker {
+    display: none;
+}
+
 .top-nav .nav-links {
     display: flex;
     gap: 1.5rem;
@@ -131,6 +148,34 @@ nav {
     display: flex;
     align-items: center;
     gap: 1rem;
+}
+
+.nav-item-relative {
+    position: relative;
+}
+
+.nav-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background-color: var(--accent-color);
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px var(--accent-glow);
+    animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 var(--accent-glow); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
 }
 
 /* Main Container */
@@ -381,24 +426,229 @@ tbody tr:hover {
 }
 
 /* Mobile Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     nav {
         flex-direction: column;
-        padding: 1rem;
+        padding: 1rem 0.5rem;
+        position: relative;
+        gap: 0.5rem;
+    }
+
+    .nav-section {
+        display: block;
+        width: 100%;
+    }
+
+    /* Forzar que se muestre como acordeón si no tiene [open] */
+    .nav-section:not([open]) > div {
+        display: none !important;
+    }
+    .nav-section[open] > div {
+        display: flex !important;
+    }
+
+    .nav-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        background: rgba(128, 128, 128, 0.08);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        cursor: pointer;
+        margin-bottom: 5px;
+    }
+
+    .nav-summary:after {
+        content: '\f107';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        font-size: 1.2rem;
+        transition: transform 0.3s;
+        color: var(--accent-color);
+    }
+
+    .nav-section[open] .nav-summary:after {
+        transform: rotate(180deg);
     }
     
-    .top-nav .nav-links, .top-nav .nav-actions {
-        margin-top: 1rem;
-        flex-wrap: wrap;
-        justify-content: center;
+    .top-nav .nav-links {
+        flex-direction: column;
+        align-items: stretch;
         width: 100%;
-        gap: 0.75rem;
+        gap: 0;
+        background: rgba(0, 0, 0, 0.15);
+        padding: 0;
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-md);
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+
+    .top-nav .nav-links a {
+        text-align: center;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0;
+        background: transparent;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 1rem;
+    }
+
+    .top-nav .nav-links a:last-child {
+        border-bottom: none;
+    }
+
+    .nav-badge {
+        position: relative;
+        top: auto;
+        right: auto;
+        display: inline-flex;
+        margin-left: 10px;
+        vertical-align: middle;
+        transform: translateY(-2px);
+        font-size: 0.75rem; /* Un poco más grande para ser más visible */
+        width: 20px;
+        height: 20px;
+    }
+    
+    .top-nav .nav-actions {
+        margin-top: 0;
+        flex-direction: column;
+        width: 100%;
+        gap: 0;
+        background: rgba(0, 0, 0, 0.15);
+        padding: 0.5rem;
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius-md);
+    }
+
+    .top-nav .nav-actions .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 1.25rem;
+        border-radius: var(--radius-sm);
+        margin-bottom: 0.5rem;
+    }
+
+    .top-nav .nav-actions .btn:last-child {
+        margin-bottom: 0;
     }
     
     main {
         width: 100%;
         margin: 0;
         border-radius: 0;
+        padding: 2.5rem 0; /* Padding horizontal 0 para permitir tablas full-width */
+        border: none;
+        box-shadow: none;
+        display: block;
+        text-align: center;
+    }
+
+    /* Elementos que sí necesitan margen/padding lateral en móvil */
+    main > h1, main > h2, main > h3, main > p, main > .flash-messages, main > form, main > .login-card, main > div:not(.table-container) {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    /* Tablas Responsivas FULL WIDTH - Técnica Breakout para ignorar paddings de padres */
+    .table-container {
+        border: none;
+        width: 100vw !important;
+        position: relative !important;
+        left: 50% !important;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+        border-radius: 0;
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        margin-bottom: 1rem;
+        background: var(--panel-bg);
+        border-top: 1px solid var(--panel-border);
+        border-bottom: 1px solid var(--panel-border);
+        border-left: none;
+        border-right: none;
+        border-radius: 0;
         padding: 1.5rem;
+        width: 100%;
+    }
+
+    td {
+        border: none;
+        position: relative;
+        padding-left: 50% !important;
+        text-align: right !important;
+        min-height: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 1rem;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 700;
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td:last-child {
+        border-bottom: 0;
+    }
+
+    .actions-cell {
+        justify-content: center !important;
+        padding-left: 1rem !important;
+        margin-top: 1rem;
+        border-top: 1px solid var(--panel-border);
+        padding-top: 1.5rem !important;
+    }
+
+    .actions-cell:before {
+        display: none;
+    }
+
+    /* Botones de acción en tablas */
+    .actions-cell div {
+        width: 100%;
+        display: flex;
+        flex-direction: row !important;
+        gap: 20px !important; /* Más espacio para evitar miss-clicks en móvil */
+    }
+}
+
+/* Pantallas Extra Pequeñas */
+@media (max-width: 480px) {
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
     }
 }

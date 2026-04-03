@@ -6,25 +6,7 @@ head %}
 />
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 {% endblock %} {% block nav %}
-<nav class="top-nav">
-  <div class="nav-links">
-    <a href="/profesional_dashboard"><i class="fas fa-home"></i> Mi Dashboard</a>
-    <a href="/profesional/ver_cuadrante" style="color: var(--accent-color)"><i class="fas fa-calendar-alt"></i> Ver Cuadrante</a>
-    {% set categorias_permitidas = ["Médico/a", "DUE", "Celador/a-Conductor/a"] %} 
-    {% if usuario.categoria in categorias_permitidas %}
-    <a href="/profesional/pedir_cambio"><i class="fas fa-exchange-alt"></i> Pedir Cambio</a>
-    <a href="/profesional/solicitudes_cambio"><i class="fas fa-envelope-open-text"></i> Solicitudes</a>
-    <a href="/profesional/historico_cambios"><i class="fas fa-history"></i> Histórico</a>
-    {% endif %}
-  </div>
-  <div class="nav-actions">
-    <a href="/descargar_pdf_dia" class="btn btn-primary btn-sm btn-pdf-global" title="Ver quién trabaja hoy">
-      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
-    </a>
-    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"><i class="fas fa-key"></i> Cambiar contraseña</a>
-    <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</a>
-  </div>
-</nav>
+{% include 'includes/nav_profesional.html' %}
 {% endblock %} {% block content %}
 <div class="animate-in">
   <h2>Cuadrante de Turnos</h2>
@@ -65,51 +47,57 @@ head %}
   </div>
 
   {% if turnos|length > 0 %}
-  <table>
-    <thead>
-      <tr>
-        <th>Profesional</th>
-        <th>Categoría</th>
-        <th>Centro</th>
-        <th>Fecha del Turno</th>
-        <th>Tipo</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for turno in turnos %}
-      <tr>
-        <td style="font-weight: 500">
-          {{ turno.profesional.nombre }} {{ turno.profesional.apellidos }}
-        </td>
-        <td>{{ turno.profesional.categoria }}</td>
-        <td>
-          {% if 'Urgencias' in turno.centro_trabajo and '+' in
-          turno.centro_trabajo %}
-          <span class="location-badge location-dual"
-            >{{ turno.centro_trabajo }}</span
-          >
-          {% elif 'Urgencias' in turno.centro_trabajo %}
-          <span class="location-badge location-urgencias"
-            >{{ turno.centro_trabajo }}</span
-          >
-          {% elif 'Saliente' in turno.centro_trabajo %}
-          <span class="location-badge location-saliente"
-            >{{ turno.centro_trabajo }}</span
-          >
-          {% else %}
-          <span class="location-badge location-centro"
-            >{{ turno.centro_trabajo }}</span
-          >
-          {% endif %}
-        </td>
-        <td>{{ turno.fecha.strftime('%d/%m/%Y') }}</td>
-        <td>
-          <span class="badge badge-{{ turno.tipo }}">{{ turno.tipo }}</span>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Profesional</th>
+          <th>Categoría</th>
+          <th>Centro</th>
+          <th>Fecha del Turno</th>
+          <th>Tipo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for turno in turnos %}
+        <tr>
+          <td data-label="Profesional" style="font-weight: 500">
+            {{ turno.profesional.nombre }} {{ turno.profesional.apellidos }}
+          </td>
+          <td data-label="Categoría">{{ turno.profesional.categoria }}</td>
+          <td data-label="Centro">
+            {% if 'Urgencias' in turno.centro_trabajo and '+' in
+            turno.centro_trabajo %}
+            <span class="location-badge location-dual"
+              >{{ turno.centro_trabajo }}</span
+            >
+            {% elif 'Urgencias' in turno.centro_trabajo %}
+            <span class="location-badge location-urgencias"
+              >{{ turno.centro_trabajo }}</span
+            >
+            {% elif 'Saliente' in turno.centro_trabajo %}
+            <span class="location-badge location-saliente"
+              >{{ turno.centro_trabajo }}</span
+            >
+            {% elif 'Vaciones' in turno.centro_trabajo or 'Vacaciones' in turno.centro_trabajo %}
+            <span class="location-badge" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">
+              {{ turno.centro_trabajo }}
+            </span>
+            {% else %}
+            <span class="location-badge location-centro"
+              >{{ turno.centro_trabajo }}</span
+            >
+            {% endif %}
+          </td>
+          <td data-label="Fecha">{{ turno.fecha.strftime('%d/%m/%Y') }}</td>
+          <td data-label="Tipo">
+            <span class="badge badge-{{ turno.tipo }}">{{ turno.tipo }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% else %}
   <div class="form-container" style="text-align: center; padding: 40px">
     <p style="color: var(--text-secondary)">

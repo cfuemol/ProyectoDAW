@@ -1,21 +1,6 @@
 {% extends "base.html" %} {% block title %}Histórico de Cambios{% endblock %}
 {% block nav %}
-<nav class="top-nav">
-  <div class="nav-links">
-    <a href="/profesional_dashboard"><i class="fas fa-home"></i> Mi Dashboard</a>
-    <a href="/profesional/ver_cuadrante"><i class="fas fa-calendar-alt"></i> Ver Cuadrante</a>
-    <a href="/profesional/pedir_cambio"><i class="fas fa-exchange-alt"></i> Pedir Cambio</a>
-    <a href="/profesional/solicitudes_cambio"><i class="fas fa-envelope-open-text"></i> Solicitudes</a>
-    <a href="/profesional/historico_cambios" style="color: var(--accent-color)"><i class="fas fa-history"></i> Histórico</a>
-  </div>
-  <div class="nav-actions">
-    <a href="/descargar_pdf_dia" class="btn btn-primary btn-sm btn-pdf-global" title="Ver quién trabaja hoy">
-      <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
-    </a>
-    <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"><i class="fas fa-key"></i> Cambiar contraseña</a>
-    <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</a>
-  </div>
-</nav>
+{% include 'includes/nav_profesional.html' %}
 {% endblock %} {% block content %}
 <div class="animate-in">
   <h2>Histórico de Cambios de Turno</h2>
@@ -24,62 +9,64 @@
   </p>
 
   {% if cambios|length > 0 %}
-  <table>
-    <thead>
-      <tr>
-        <th>Profesional 1 (Ofrecido)</th>
-        <th>Turno P1</th>
-        <th>Profesional 2 (Recibido)</th>
-        <th>Turno P2</th>
-        <th>Estado</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sol in cambios %}
-      <tr>
-        <td>
-          {% if sol.profesional1.dni == usuario.dni %}
-          <strong>Yo</strong>
-          {% else %} {{ sol.profesional1.nombre }} {{ sol.profesional1.apellidos
-          }} {% endif %}
-        </td>
-        <td>
-          <div style="font-weight: 500">
-            {{ sol.fecha_original.strftime('%d/%m/%Y') }}
-          </div>
-          {% if sol.tipo_p1 %}
-          <span class="badge badge-{{ sol.tipo_p1 }}">{{ sol.tipo_p1 }}</span>
-          {% endif %}
-        </td>
-        <td>
-          {% if sol.profesional2.dni == usuario.dni %}
-          <strong>Yo</strong>
-          {% else %} {{ sol.profesional2.nombre }} {{ sol.profesional2.apellidos
-          }} {% endif %}
-        </td>
-        <td>
-          <div style="font-weight: 500">
-            {{ sol.fecha_final.strftime('%d/%m/%Y') }}
-          </div>
-          {% if sol.tipo_p2 %}
-          <span class="badge badge-{{ sol.tipo_p2 }}">{{ sol.tipo_p2 }}</span>
-          {% endif %}
-        </td>
-        <td>
-          <span
-            class="badge badge-accepted"
-            style="
-              background: rgba(34, 197, 94, 0.1);
-              color: #22c55e;
-              border: 1px solid rgba(34, 197, 94, 0.2);
-            "
-            >Aceptado</span
-          >
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Profesional 1 (Ofrecido)</th>
+          <th>Turno P1</th>
+          <th>Profesional 2 (Recibido)</th>
+          <th>Turno P2</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sol in cambios %}
+        <tr>
+          <td data-label="Profesional 1">
+            {% if sol.profesional1.dni == usuario.dni %}
+            <strong>Yo</strong>
+            {% else %} {{ sol.profesional1.nombre }} {{ sol.profesional1.apellidos
+            }} {% endif %}
+          </td>
+          <td data-label="Turno P1">
+            <div style="font-weight: 500">
+              {{ sol.fecha_original.strftime('%d/%m/%Y') }}
+            </div>
+            {% if sol.tipo_p1 %}
+            <span class="badge badge-{{ sol.tipo_p1 }}">{{ sol.tipo_p1 }}</span>
+            {% endif %}
+          </td>
+          <td data-label="Profesional 2">
+            {% if sol.profesional2.dni == usuario.dni %}
+            <strong>Yo</strong>
+            {% else %} {{ sol.profesional2.nombre }} {{ sol.profesional2.apellidos
+            }} {% endif %}
+          </td>
+          <td data-label="Turno P2">
+            <div style="font-weight: 500">
+              {{ sol.fecha_final.strftime('%d/%m/%Y') }}
+            </div>
+            {% if sol.tipo_p2 %}
+            <span class="badge badge-{{ sol.tipo_p2 }}">{{ sol.tipo_p2 }}</span>
+            {% endif %}
+          </td>
+          <td data-label="Estado">
+            <span
+              class="badge badge-accepted"
+              style="
+                background: rgba(34, 197, 94, 0.1);
+                color: #22c55e;
+                border: 1px solid rgba(34, 197, 94, 0.2);
+              "
+              >Aceptado</span
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% else %}
   <div class="form-container" style="text-align: center; padding: 40px">
     <p style="color: var(--text-secondary)">
