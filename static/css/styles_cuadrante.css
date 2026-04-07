@@ -1,0 +1,27 @@
+/* ---------------------------------
+   Estilos específicos de Cuadrante y Notificaciones
+--------------------------------- */
+
+main {
+    max-width: 1000px;
+}
+
+.btn-pdf-mensual {
+    background: var(--accent-color);
+    color: #000 !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 0 10px var(--accent-glow);
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+.btn-pdf-mensual:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px var(--accent-glow);
+}

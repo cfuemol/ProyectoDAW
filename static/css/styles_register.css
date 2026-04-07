@@ -1,0 +1,31 @@
+/* ---------------------------------
+   Estilos específicos de Register Usuario
+--------------------------------- */
+
+.saliente-section {
+    display: none;
+    border: 1px solid var(--panel-border);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background: rgba(234, 179, 8, 0.05);
+}
+
+.saliente-section label {
+    display: inline;
+    text-transform: none;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.saliente-section input[type="checkbox"] {
+    width: auto;
+    margin: 0 0 0 10px;
+    vertical-align: middle;
+}
+
+.saliente-section p {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    margin: 5px 0 0 0;
+}

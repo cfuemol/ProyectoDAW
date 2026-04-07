@@ -1,6 +1,8 @@
-{% extends "base.html" %} {% block title %}Borrar Usuarios{% endblock %} {% block nav %}
-{% include 'includes/nav_admin.html' %}
-{% endblock %} {% block content %}
+{% extends "base.html" %} {% block title %}Borrar Usuarios{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/static/css/styles_borrar_usuarios.css" />
+{% endblock %}
+{% block nav %}
 <div class="animate-in">
   <h2>Gestión de Usuarios</h2>
   <p>Listado de todos los usuarios registrados en el sistema.</p>

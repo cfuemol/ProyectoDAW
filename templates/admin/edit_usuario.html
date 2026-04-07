@@ -1,6 +1,10 @@
 {% extends "base.html" %} 
 {% block title %}Editar Usuario{% endblock %} 
 
+{% block head %}
+<link rel="stylesheet" href="/static/css/styles_edit_usuario.css" />
+{% endblock %}
+
 {% block nav %}
 {% include 'includes/nav_admin.html' %}
 {% endblock %} 
@@ -58,81 +62,14 @@
     <option value="profesional" {{ 'selected' if usuario.rol == 'profesional' else '' }}>Profesional</option>
   </select><br /><br />
 
-  <div id="saliente_section" style="display: none; border: 1px solid var(--panel-border); padding: 15px; border-radius: 8px; margin-bottom: 20px; background: rgba(234, 179, 8, 0.05);">
-    <label for="es_saliente" style="display: inline; text-transform: none; color: var(--text-primary); font-weight: 600;">¿Es Saliente? (Cubre descansos L-V):</label>
-    <input type="checkbox" id="es_saliente" name="es_saliente" {{ 'checked' if usuario.es_saliente else '' }} style="width: auto; margin: 0 0 0 10px; vertical-align: middle;">
-    <p style="font-size: 0.8em; color: var(--text-secondary); margin: 5px 0 0 0;">Solo para Médicos/as y DUEs con rol profesional.</p>
+  <div id="saliente_section" class="saliente-section">
+    <label for="es_saliente">¿Es Saliente? (Cubre descansos L-V):</label>
+    <input type="checkbox" id="es_saliente" name="es_saliente" {{ 'checked' if usuario.es_saliente else '' }}>
+    <p>Solo para Médicos/as y DUEs con rol profesional.</p>
   </div>
 
   <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Actualizar Usuario</button>
 </form>
 
-<script>
-  const rolSelect = document.getElementById("rol");
-  const categoriaSelect = document.getElementById("categoria");
-  const unidadAsignadaSelect = document.getElementById("unidad_asignada");
-  const centroAsignadoSelect = document.getElementById("centro_asignado");
-
-  const ADMIN_CAT = "Técnico Especialista en Informática";
-  const ADMIN_UNIDAD = "SAS";
-  const ADMIN_CENTRO = "Distrito Sanitario Granada Sur (SAS)";
-
-  function updateAdminFields() {
-    if (rolSelect.value === "administrador") {
-      // Es administrador
-      if (!Array.from(categoriaSelect.options).some(opt => opt.value === ADMIN_CAT)) {
-        const opt = document.createElement("option");
-        opt.value = ADMIN_CAT; opt.text = ADMIN_CAT;
-        categoriaSelect.add(opt);
-      }
-      categoriaSelect.value = ADMIN_CAT;
-
-      if (!Array.from(unidadAsignadaSelect.options).some(opt => opt.value === ADMIN_UNIDAD)) {
-        const opt = document.createElement("option");
-        opt.value = ADMIN_UNIDAD; opt.text = ADMIN_UNIDAD;
-        unidadAsignadaSelect.add(opt);
-      }
-      unidadAsignadaSelect.value = ADMIN_UNIDAD;
-
-      if (!Array.from(centroAsignadoSelect.options).some(opt => opt.value === ADMIN_CENTRO)) {
-        const opt = document.createElement("option");
-        opt.value = ADMIN_CENTRO; opt.text = ADMIN_CENTRO;
-        centroAsignadoSelect.add(opt);
-      }
-      centroAsignadoSelect.value = ADMIN_CENTRO;
-
-      // Ocultar Dispositivo Apoyo Granada Sur para admin
-      Array.from(centroAsignadoSelect.options).forEach(opt => {
-        if (opt.value === "Dispositivo Apoyo Granada Sur") opt.style.display = "none";
-      });
-
-      categoriaSelect.setAttribute("readonly", true);
-      unidadAsignadaSelect.setAttribute("readonly", true);
-      centroAsignadoSelect.setAttribute("readonly", true);
-    } else {
-      // Mostrar Dispositivo Apoyo Granada Sur para otros roles
-      Array.from(centroAsignadoSelect.options).forEach(opt => {
-        if (opt.value === "Dispositivo Apoyo Granada Sur") opt.style.display = "";
-      });
-
-      categoriaSelect.removeAttribute("readonly");
-      unidadAsignadaSelect.removeAttribute("readonly");
-      centroAsignadoSelect.removeAttribute("readonly");
-    }
-
-    // Nueva lógica Salientes
-    const salienteSection = document.getElementById("saliente_section");
-    const allowedCats = ["Médico/a", "DUE"];
-    if (rolSelect.value === "profesional" && allowedCats.includes(categoriaSelect.value)) {
-      salienteSection.style.display = "block";
-    } else {
-      salienteSection.style.display = "none";
-      document.getElementById("es_saliente").checked = false;
-    }
-  }
-
-  rolSelect.addEventListener("change", updateAdminFields);
-  categoriaSelect.addEventListener("change", updateAdminFields);
-  updateAdminFields();
-</script>
+<script src="/static/scripts/edit_usuario.js"></script>
 {% endblock %}

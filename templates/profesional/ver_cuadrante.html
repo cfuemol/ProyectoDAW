@@ -1,5 +1,5 @@
-{% extends "base.html" %} {% block title %}Ver Cuadrante{% endblock %} {% block
-head %}
+{% extends "base.html" %} {% block title %}Ver Cuadrante{% endblock %} {% block head %}
+<link rel="stylesheet" href="/static/css/styles_cuadrante.css" />
 <link
   rel="stylesheet"
   href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css"
@@ -37,6 +37,7 @@ head %}
         id="month-picker"
         style="width: auto; margin: 0; padding: 8px 15px; min-width: 200px"
         placeholder="Selecciona Mes"
+        data-default-date="{{ '%02d' % mes_sel }}/{{ anio_sel }}"
       />
       <a
         href="/profesional/descargar_pdf?mes={{ mes_sel }}&anio={{ anio_sel }}"
@@ -106,100 +107,5 @@ head %}
   </div>
   {% endif %}
 </div>
-<style>
-  main {
-    max-width: 1000px;
-  }
-  .badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.95em;
-    font-weight: 600;
-    display: inline-block;
-  }
-  .badge-7h {
-    background-color: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-    border: 1px solid rgba(34, 197, 94, 0.2);
-  }
-  .badge-17h {
-    background-color: rgba(234, 179, 8, 0.1);
-    color: #eab308;
-    border: 1px solid rgba(234, 179, 8, 0.4);
-  }
-  .badge-24h {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.2);
-  }
-
-  .location-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    display: inline-block;
-  }
-  .location-centro {
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-    border: 1px solid rgba(34, 197, 94, 0.2);
-  }
-  .location-urgencias {
-    background: rgba(234, 179, 8, 0.1);
-    color: #eab308;
-    border: 1px solid rgba(234, 179, 8, 0.4);
-  }
-  .location-saliente {
-    background: rgba(234, 179, 8, 0.15);
-    color: #facc15;
-    border: 1px solid var(--accent-color);
-    box-shadow: 0 0 10px var(--accent-glow);
-  }
-
-  .btn-pdf-mensual {
-    background: var(--accent-color);
-    color: #000 !important;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 0 10px var(--accent-glow);
-    transition: all 0.3s ease;
-    text-decoration: none;
-  }
-  .btn-pdf-mensual:hover {
-    background: var(--accent-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 0 15px var(--accent-glow);
-  }
-</style>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const monthPicker = flatpickr("#month-picker", {
-      locale: "es",
-      plugins: [
-        new monthSelectPlugin({
-          shorthand: true,
-          dateFormat: "m/Y",
-          altFormat: "F Y",
-        }),
-      ],
-      defaultDate: "{{ '%02d' % mes_sel }}/{{ anio_sel }}",
-      onChange: function (selectedDates, dateStr, instance) {
-        if (selectedDates.length > 0) {
-          const date = selectedDates[0];
-          const mes = date.getMonth() + 1;
-          const anio = date.getFullYear();
-          // Recargar con los nuevos parámetros
-          window.location.href = `/profesional/ver_cuadrante?mes=${mes}&anio=${anio}`;
-        }
-      },
-    });
-  });
-</script>
+<script src="/static/scripts/ver_cuadrante.js"></script>
 {% endblock %}

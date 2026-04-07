@@ -1,0 +1,14 @@
+/* ---------------------------------
+   Estilos específicos de Pedir Cambio
+--------------------------------- */
+
+.validacion-error {
+    display: none;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    font-size: 0.9em;
+}

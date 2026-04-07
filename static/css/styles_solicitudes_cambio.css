@@ -1,0 +1,19 @@
+/* ---------------------------------
+   Estilos específicos de Solicitudes de Cambio
+--------------------------------- */
+
+.actions-flex {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    justify-content: center;
+}
+
+.actions-flex form {
+    margin: 0;
+    flex: 1;
+}
+
+.actions-flex button {
+    width: 100%;
+}

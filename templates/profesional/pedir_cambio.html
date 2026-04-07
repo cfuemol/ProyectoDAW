@@ -1,6 +1,10 @@
 {% extends "base.html" %} 
 {% block title %}Pedir Cambio de Turno{% endblock %} 
 
+{% block head %}
+<link rel="stylesheet" href="/static/css/styles_pedir_cambio.css" />
+{% endblock %}
+
 {% block nav %}
 {% include 'includes/nav_profesional.html' %}
 {% endblock %} 
@@ -40,7 +44,7 @@
         </select>
       </div>
 
-      <div id="validacion-error" style="display: none; margin-bottom: 20px; padding: 10px; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; font-size: 0.9em;">
+      <div id="validacion-error" class="validacion-error">
       </div>
 
       <button type="submit" id="submit-btn" class="btn btn-primary" disabled>
@@ -50,77 +54,5 @@
   </div>
 </div>
 
-<script>
-  const miTurnoSel = document.getElementById('mi_turno_id');
-  const compTurnoSel = document.getElementById('companero_turno_id');
-  const submitBtn = document.getElementById('submit-btn');
-  const errorDiv = document.getElementById('validacion-error');
-
-  miTurnoSel.addEventListener('change', validarTodo);
-  compTurnoSel.addEventListener('change', validarTodo);
-
-  function validarTodo() {
-    errorDiv.style.display = 'none';
-    submitBtn.disabled = true;
-    const originalText = "Enviar Solicitud";
-    submitBtn.innerText = originalText;
-
-    if (miTurnoSel.value && compTurnoSel.value) {
-      submitBtn.innerText = "⏳ Validando descanso...";
-      
-      // Llamar al API de validación
-      fetch(`/api/validar_cambio?mi_turno_id=${miTurnoSel.value}&companero_turno_id=${compTurnoSel.value}`)
-        .then(res => res.json())
-        .then(data => {
-          submitBtn.innerText = originalText;
-          if (data.valido) {
-            submitBtn.disabled = false;
-          } else {
-            submitBtn.disabled = true; // Asegurar que sigue bloqueado
-            if (data.mensaje) {
-              errorDiv.innerText = data.mensaje;
-              errorDiv.style.display = 'block';
-            }
-          }
-        })
-        .catch(err => {
-          console.error("Error validando:", err);
-          submitBtn.innerText = originalText;
-          submitBtn.disabled = true;
-        });
-    }
-  }
-
-  function cargarTurnosCompanero() {
-    const dni = document.getElementById('companero_dni').value;
-    const selectTurno = document.getElementById('companero_turno_id');
-    
-    selectTurno.innerHTML = '<option value="">Cargando turnos...</option>';
-    selectTurno.disabled = true;
-    validarTodo();
-
-    if (!dni) {
-      selectTurno.innerHTML = '<option value="">-- Primero selecciona un compañero --</option>';
-      return;
-    }
-
-    fetch(`/api/turnos_companero/${dni}`)
-      .then(response => response.json())
-      .then(data => {
-        selectTurno.innerHTML = '<option value="">-- Selecciona un turno del compañero --</option>';
-        if (data.turnos.length === 0) {
-          selectTurno.innerHTML = '<option value="">El compañero no tiene turnos disponibles de 17h/24h</option>';
-        } else {
-          data.turnos.forEach(turno => {
-            selectTurno.innerHTML += `<option value="${turno.id}">${turno.fecha} (${turno.tipo})</option>`;
-          });
-          selectTurno.disabled = false;
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching turnos:', error);
-        selectTurno.innerHTML = '<option value="">Error al cargar turnos</option>';
-      });
-  }
-</script>
+<script src="/static/scripts/pedir_cambio.js"></script>
 {% endblock %}

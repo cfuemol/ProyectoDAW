@@ -1,6 +1,10 @@
 {% extends "base.html" %} 
 {% block title %}Solicitudes de Cambio{% endblock %} 
 
+{% block head %}
+<link rel="stylesheet" href="/static/css/styles_solicitudes_cambio.css" />
+{% endblock %}
+
 {% block nav %}
 {% include 'includes/nav_profesional.html' %}
 {% endblock %} 
@@ -28,14 +32,14 @@
           <td data-label="Ofrece">{{ sol.fecha_original.strftime('%d/%m/%Y') }}</td>
           <td data-label="Tu Turno">{{ sol.fecha_final.strftime('%d/%m/%Y') }}</td>
           <td class="actions-cell" data-label="Acciones">
-            <div style="display: flex; gap: 20px; width: 100%; justify-content: center;">
-              <form method="POST" action="/profesional/responder_cambio/{{ sol.id }}/aceptar" style="margin:0; flex: 1;">
-                <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+            <div class="actions-flex">
+              <form method="POST" action="/profesional/responder_cambio/{{ sol.id }}/aceptar">
+                <button type="submit" class="btn btn-primary btn-sm">
                   <i class="fas fa-check"></i> Aceptar
                 </button>
               </form>
-              <form method="POST" action="/profesional/responder_cambio/{{ sol.id }}/rechazar" style="margin:0; flex: 1;">
-                <button type="submit" class="btn btn-danger btn-sm" style="width: 100%;">
+              <form method="POST" action="/profesional/responder_cambio/{{ sol.id }}/rechazar">
+                <button type="submit" class="btn btn-danger btn-sm">
                   <i class="fas fa-times"></i> Rechazar
                 </button>
               </form>

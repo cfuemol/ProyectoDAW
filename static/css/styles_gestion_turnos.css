@@ -1,0 +1,133 @@
+/* ---------------------------------
+   Estilos específicos de Gestión de Turnos
+--------------------------------- */
+
+.batch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.batch-header h3 {
+    margin: 0;
+    color: var(--accent-color);
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+.batch-table {
+    margin-top: 0;
+    border: none;
+    background: transparent;
+    width: 100%;
+    border-collapse: collapse;
+}
+.batch-table th {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 12px;
+    text-align: center;
+}
+.batch-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--panel-border);
+}
+.batch-table select,
+.batch-table input {
+    width: 100%;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--panel-border);
+    color: var(--text-primary);
+    border-radius: 4px;
+}
+.batch-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    padding: 0 8px;
+}
+.btn-action-add {
+    width: auto;
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 8px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.btn-action-add:hover {
+    background: var(--accent-color);
+    color: var(--bg-color);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+.btn-action-save {
+    width: auto;
+    background: var(--accent-color);
+    color: var(--bg-color);
+    border: none;
+    padding: 10px 30px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.action-btns {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+.btn-table-mod {
+    background: transparent;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 6px 12px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    width: auto;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.btn-table-mod:hover {
+    background: var(--accent-color);
+    color: var(--bg-color);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+.btn-table-del {
+    background: transparent;
+    border: 1px solid var(--danger-color);
+    color: var(--danger-color);
+    padding: 6px 12px;
+    font-size: 0.95rem;
+    width: auto;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+.btn-table-del:hover {
+    background: var(--danger-color);
+    color: white;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+.modify-form {
+    display: none;
+    align-items: center;
+    gap: 5px;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--panel-border),
+      transparent
+    );
+    margin: 3rem 0;
+}

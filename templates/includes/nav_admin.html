@@ -1,15 +1,18 @@
 <nav class="top-nav">
-  <details class="nav-section">
-    <summary class="nav-summary">Navegación</summary>
+  <div class="nav-header">
+    <span class="nav-title"><i class="fas fa-hospital"></i> Panel Admin</span>
+    <button class="navbar-toggler" id="navbarToggler" aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+  
+  <div class="navbar-collapse" id="navbarNav">
     <div class="nav-links">
       <a href="/admin_dashboard"><i class="fas fa-hammer"></i> Dashboard Admin</a>
       <a href="/register"><i class="fas fa-user-plus"></i> Registrar Usuario</a>
       <a href="/borrar_usuarios"><i class="fas fa-users-slash"></i> Listado/Borrar Usuarios</a>
     </div>
-  </details>
 
-  <details class="nav-section">
-    <summary class="nav-summary">Mi Cuenta</summary>
     <div class="nav-actions">
       <a href="/descargar_pdf_dia" class="btn btn-primary btn-sm btn-pdf-global" title="Ver quién trabaja hoy">
         <i class="fas fa-file-pdf"></i> ¿Quién trabaja hoy?
@@ -17,5 +20,5 @@
       <a href="/cambiar_password" class="btn btn-nav-accent btn-sm"><i class="fas fa-key"></i> Cambiar contraseña</a>
       <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Salir</a>
     </div>
-  </details>
+  </div>
 </nav>
