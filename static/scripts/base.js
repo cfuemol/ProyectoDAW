@@ -159,19 +159,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fetch("/api/usuarios_online")
       .then((res) => {
-        if (!res.ok) return;
+        if (!res.ok) {
+          // Si recibimos un 403 o error, el usuario probablemente ya no está logado
+          if (contador.textContent !== "–") contador.textContent = "–";
+          return;
+        }
         return res.json();
       })
       .then((data) => {
         if (data && typeof data.count === "number") {
           // Pequeña animación al cambiar el número
-          contador.style.transform = "scale(1.3)";
-          contador.style.opacity = "0.5";
-          setTimeout(() => {
-            contador.textContent = data.count;
-            contador.style.transform = "scale(1)";
-            contador.style.opacity = "1";
-          }, 200);
+          if (contador.textContent !== String(data.count)) {
+            contador.style.transform = "scale(1.3)";
+            contador.style.opacity = "0.5";
+            setTimeout(() => {
+              contador.textContent = data.count;
+              contador.style.transform = "scale(1)";
+              contador.style.opacity = "1";
+            }, 200);
+          }
         }
       })
       .catch(() => {}); // Silencioso en caso de error de red

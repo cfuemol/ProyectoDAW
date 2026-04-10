@@ -139,16 +139,23 @@ def inject_global_data():
 
 @app.route("/api/usuarios_online")
 def api_usuarios_online():
-    """Devuelve el número de usuarios con actividad en los últimos 5 minutos."""
+    """Devuelve el número de usuarios con actividad en los últimos 2 minutos."""
     if 'dni' not in session:
         return {"count": 0}, 403
     
     #* Refrescar el timestamp del usuario que hace el ping
-    usuarios_activos[session['dni']] = datetime.utcnow()
+    ahora = datetime.utcnow()
+    usuarios_activos[session['dni']] = ahora
 
-    umbral = datetime.utcnow() - timedelta(minutes=5)
-    activos = sum(1 for ts in usuarios_activos.values() if ts >= umbral)
-    return {"count": activos}
+    #* Limpiar usuarios inactivos (más de 2 min) para mantener el diccionario limpio
+    umbral = ahora - timedelta(minutes=2)
+    
+    # Creamos una lista de DNIs a eliminar para no modificar el dict mientras iteramos
+    para_eliminar = [dni for dni, ts in usuarios_activos.items() if ts < umbral]
+    for dni in para_eliminar:
+        usuarios_activos.pop(dni, None)
+
+    return {"count": len(usuarios_activos)}
 
 
 #*---------------------------------
