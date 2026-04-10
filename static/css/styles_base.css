@@ -176,6 +176,50 @@ nav {
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
 }
 
+/* Indicador de Usuarios Online */
+.online-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: default;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.online-indicator:hover {
+    background: rgba(16, 185, 129, 0.18);
+    border-color: rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+.online-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: onlinePulse 2s infinite;
+    flex-shrink: 0;
+}
+
+@keyframes onlinePulse {
+    0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+    70%  { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.online-count {
+    font-variant-numeric: tabular-nums;
+    transition: all 0.4s ease;
+}
+
 /* Main Container */
 main {
     width: 95%;
@@ -591,6 +635,14 @@ tbody tr:hover {
         padding: 0.5rem;
         border: 1px solid var(--panel-border);
         border-radius: var(--radius-md);
+    }
+
+    .top-nav .nav-actions .online-indicator {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem;
+        border-radius: var(--radius-sm);
+        margin-bottom: 1rem;
     }
 
     .top-nav .nav-actions .btn {

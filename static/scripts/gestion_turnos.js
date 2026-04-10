@@ -36,7 +36,6 @@
       altInput: true,
       altFormat: "d/m/Y",
       allowInput: true,
-      theme: "dark",
     });
   }
 

@@ -11,6 +11,9 @@ from models.cambio import Cambio
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret-key'
 
+#* Registro de usuarios activos: {dni: datetime_ultimo_ping}
+usuarios_activos = {}
+
 #* Inicializar MongoDB (evitar en tests)
 if __name__ == "__main__" or "pytest" not in str(os.environ):
     init_db()
@@ -109,6 +112,9 @@ def inject_global_data():
     rol = session.get('rol')
     dni = session.get('dni')
     
+    #* Registrar actividad del usuario actual
+    usuarios_activos[dni] = datetime.utcnow()
+
     solicitudes_count = 0
     notificaciones_count = 0
     usuario = Usuario.objects(dni=dni).first()
@@ -129,6 +135,20 @@ def inject_global_data():
         notificaciones_pendientes_count=notificaciones_count,
         usuario=usuario
     )
+
+
+@app.route("/api/usuarios_online")
+def api_usuarios_online():
+    """Devuelve el número de usuarios con actividad en los últimos 5 minutos."""
+    if 'dni' not in session:
+        return {"count": 0}, 403
+    
+    #* Refrescar el timestamp del usuario que hace el ping
+    usuarios_activos[session['dni']] = datetime.utcnow()
+
+    umbral = datetime.utcnow() - timedelta(minutes=5)
+    activos = sum(1 for ts in usuarios_activos.values() if ts >= umbral)
+    return {"count": activos}
 
 
 #*---------------------------------
@@ -169,6 +189,10 @@ def login():
 
 @app.route("/logout")
 def logout():
+    #* Eliminar al usuario del registro de activos al cerrar sesión
+    dni = session.get('dni')
+    if dni and dni in usuarios_activos:
+        del usuarios_activos[dni]
     session.clear()
     return redirect("/")
 

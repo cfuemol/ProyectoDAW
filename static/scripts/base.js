@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
-  // Manejo responsivo - Toggler tipo Bootstrap para móvil
+    // Manejo responsivo - Toggler tipo Bootstrap para móvil
   const navbarToggler = document.getElementById("navbarToggler");
   const navbarNav = document.getElementById("navbarNav");
   if (navbarToggler && navbarNav) {
@@ -151,4 +151,33 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
+  // ---- Usuarios Online: polling cada 30 segundos ----
+  function actualizarUsuariosOnline() {
+    const contador = document.getElementById("online-count");
+    if (!contador) return; // Solo si el elemento existe (usuario logado)
+
+    fetch("/api/usuarios_online")
+      .then((res) => {
+        if (!res.ok) return;
+        return res.json();
+      })
+      .then((data) => {
+        if (data && typeof data.count === "number") {
+          // Pequeña animación al cambiar el número
+          contador.style.transform = "scale(1.3)";
+          contador.style.opacity = "0.5";
+          setTimeout(() => {
+            contador.textContent = data.count;
+            contador.style.transform = "scale(1)";
+            contador.style.opacity = "1";
+          }, 200);
+        }
+      })
+      .catch(() => {}); // Silencioso en caso de error de red
+  }
+
+  // Ejecutar inmediatamente y luego cada 5 segundos
+  actualizarUsuariosOnline();
+  setInterval(actualizarUsuariosOnline, 5000);
 });
