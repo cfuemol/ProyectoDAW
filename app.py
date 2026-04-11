@@ -774,7 +774,7 @@ def descargar_pdf_dia():
     )
 
 #*---------------------------------
-#* GESTIÓN DE CORTESÍA / CAMBIOS PROFESIONAL
+#* GESTIÓN DE CAMBIOS PROFESIONAL
 #*---------------------------------
 
 @app.route("/api/validar_cambio")
