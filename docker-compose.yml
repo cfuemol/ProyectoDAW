@@ -41,6 +41,7 @@ services:
       MONGO_PASSWORD: ${MONGO_PASSWORD}
       MONGO_DB: ${MONGO_DB}
       MONGO_HOST: ${MONGO_HOST}
+      SECRET_KEY: ${SECRET_KEY}
     volumes:
       - .:/app
     depends_on:
