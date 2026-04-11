@@ -13,9 +13,9 @@
       <a href="/gestion_turnos"><i class="fas fa-calendar-check"></i> Gestión Turnos</a>
       <a href="/notificaciones_cambios" class="nav-item-relative">
         <i class="fas fa-bell"></i> Notificaciones
-        {% if notificaciones_pendientes_count > 0 %}
-        <span class="nav-badge">{{ notificaciones_pendientes_count }}</span>
-        {% endif %}
+        <span id="notificaciones-badge" class="nav-badge" style="display: {% if notificaciones_pendientes_count > 0 %}flex{% else %}none{% endif %};">
+          {{ notificaciones_pendientes_count }}
+        </span>
       </a>
     </div>
 

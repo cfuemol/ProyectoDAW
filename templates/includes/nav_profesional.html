@@ -15,9 +15,9 @@
       <a href="/profesional/pedir_cambio"><i class="fas fa-exchange-alt"></i> Pedir Cambio</a>
       <a href="/profesional/solicitudes_cambio" class="nav-item-relative">
         <i class="fas fa-envelope-open-text"></i> Solicitudes
-        {% if solicitudes_pendientes_count > 0 %}
-        <span class="nav-badge">{{ solicitudes_pendientes_count }}</span>
-        {% endif %}
+        <span id="solicitudes-badge" class="nav-badge" style="display: {% if solicitudes_pendientes_count > 0 %}flex{% else %}none{% endif %};">
+          {{ solicitudes_pendientes_count }}
+        </span>
       </a>
       <a href="/profesional/historico_cambios"><i class="fas fa-history"></i> Histórico</a>
       {% endif %}

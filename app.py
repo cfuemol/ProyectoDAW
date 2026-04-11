@@ -158,6 +158,33 @@ def api_usuarios_online():
     return {"count": len(usuarios_activos)}
 
 
+@app.route("/api/notificaciones")
+def api_notificaciones():
+    """Devuelve los conteos de notificaciones y solicitudes pendientes para el usuario actual."""
+    if 'dni' not in session:
+        return {"solicitudes": 0, "notificaciones": 0}, 403
+    
+    rol = session.get('rol')
+    dni = session.get('dni')
+    
+    solicitudes_count = 0
+    notificaciones_count = 0
+    usuario = Usuario.objects(dni=dni).first()
+    
+    try:
+        if rol == 'profesional' and usuario:
+            solicitudes_count = Cambio.objects(profesional2=usuario, estado='pendiente').count()
+        elif rol == 'direccion':
+            notificaciones_count = Cambio.objects(estado__in=['aceptado', 'rechazado'], visto_por_direccion=False).count()
+    except Exception:
+        pass
+        
+    return {
+        "solicitudes": solicitudes_count,
+        "notificaciones": notificaciones_count
+    }
+
+
 #*---------------------------------
 #* LOGIN
 #*---------------------------------
@@ -659,11 +686,32 @@ def gestion_turnos():
 @app.route("/notificaciones_cambios")
 @requiere_rol("direccion")
 def notificaciones_cambios():
-    # Obtener todos los cambios de turno registrados
-    cambios = Cambio.objects().order_by('-fecha_original')
-    # Al entrar aquí, marcamos todos los aceptados/rechazados como vistos por el director
-    Cambio.objects(estado__in=['aceptado', 'rechazado'], visto_por_direccion=False).update(set__visto_por_direccion=True)
-    return render_template("direccion/notificaciones_cambios.html", cambios=cambios)
+    # Obtener mes y año de los parámetros de consulta
+    mes = request.args.get('mes', type=int)
+    anio = request.args.get('anio', type=int)
+
+    # Base de la consulta: solo cambios que ya han sido aceptados
+    query_filtros = {'estado': 'aceptado'}
+
+    if mes and anio:
+        fecha_inicio = datetime(anio, mes, 1)
+        if mes == 12:
+            fecha_fin = datetime(anio + 1, 1, 1)
+        else:
+            fecha_fin = datetime(anio, mes + 1, 1)
+        query_filtros['fecha_original__gte'] = fecha_inicio
+        query_filtros['fecha_original__lt'] = fecha_fin
+
+    # Convertimos a lista para ejecutar la query ANTES de marcar como vistos en la DB
+    cambios = list(Cambio.objects(**query_filtros).order_by('visto_por_direccion', '-fecha_original'))
+    
+    # Ahora sí marcamos como vistos los que se van a mostrar
+    Cambio.objects(**query_filtros).filter(visto_por_direccion=False).update(set__visto_por_direccion=True)
+    
+    return render_template("direccion/notificaciones_cambios.html", 
+                           cambios=cambios, 
+                           mes_sel=mes, 
+                           anio_sel=anio)
 
 @app.route("/descargar_pdf_dia")
 @requiere_rol("direccion", "profesional")

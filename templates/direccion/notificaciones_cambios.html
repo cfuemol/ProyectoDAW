@@ -6,14 +6,52 @@
 {% include 'includes/nav_direccion.html' %}
 {% endblock %} {% block content %}
 <div class="animate-in">
-  <h2>Historial de Cambios de Turno</h2>
-  <p>Notificaciones de intercambios realizados entre profesionales.</p>
+  <h2>Notificaciones y Historial de Cambios</h2>
+  <p>Consulta los intercambios realizados y filtra por periodos específicos.</p>
+
+  <!-- Formulario de Filtro -->
+  <div class="glass" style="padding: 20px; border-radius: var(--radius-md); margin-bottom: 30px;">
+    <form method="GET" action="/notificaciones_cambios" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+      <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 200px;">
+        <label for="mes"><i class="fas fa-calendar-alt"></i> Mes</label>
+        <select name="mes" id="mes">
+          <option value="">-- Seleccionar Mes --</option>
+          {% set meses = [
+            (1, 'Enero'), (2, 'Febrero'), (3, 'Marzo'), (4, 'Abril'),
+            (5, 'Mayo'), (6, 'Junio'), (7, 'Julio'), (8, 'Agosto'),
+            (9, 'Septiembre'), (10, 'Octubre'), (11, 'Noviembre'), (12, 'Diciembre')
+          ] %}
+          {% for num, nombre in meses %}
+            <option value="{{ num }}" {% if mes_sel == num %}selected{% endif %}>{{ nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px;">
+        <label for="anio"><i class="fas fa-clock"></i> Año</label>
+        <select name="anio" id="anio">
+          <option value="">-- Seleccionar Año --</option>
+          {% for y in range(2025, 2031) %}
+            <option value="{{ y }}" {% if anio_sel == y %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button type="submit" class="btn btn-primary" style="width: auto; padding: 0.75rem 2rem;">
+          <i class="fas fa-filter"></i> Filtrar
+        </button>
+        <a href="/notificaciones_cambios" class="btn btn-secondary" style="width: auto; padding: 0.75rem 1.5rem;">
+          <i class="fas fa-redo"></i> Limpiar
+        </a>
+      </div>
+    </form>
+  </div>
 
   {% if cambios %}
   <div class="table-container">
     <table>
       <thead>
         <tr>
+          <th>Estado / Info</th>
           <th>Profesional 1</th>
           <th>Su Turno Original</th>
           <th style="color: var(--accent-color)">➡ Su Nuevo Turno</th>
@@ -23,8 +61,14 @@
         </tr>
       </thead>
       <tbody>
-        {% for c in cambios %} {% if c.estado == 'aceptado' %}
-        <tr>
+        {% for c in cambios %}
+        <tr {% if not c.visto_por_direccion %}style="background-color: rgba(251, 191, 36, 0.1); border-left: 4px solid var(--accent-color);"{% endif %}>
+          <td data-label="Estado / Info">
+             {% if not c.visto_por_direccion %}
+                <span class="badge" style="background: var(--accent-color); color: #000; margin-bottom: 5px; display: block; text-align: center; box-shadow: 0 0 10px var(--accent-glow);">NUEVO</span>
+             {% endif %}
+             <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; display: block; text-align: center;">ACEPTADO</span>
+          </td>
           <!-- Profesional 1 -->
           <td data-label="Profesional 1" style="text-align: left">
             <div style="font-weight: 600">
@@ -77,7 +121,7 @@
             {% endif %}
           </td>
         </tr>
-        {% endif %} {% endfor %}
+        {% endfor %}
       </tbody>
     </table>
   </div>

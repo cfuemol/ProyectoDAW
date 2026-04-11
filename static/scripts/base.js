@@ -186,4 +186,46 @@ document.addEventListener("DOMContentLoaded", function () {
   // Ejecutar inmediatamente y luego cada 5 segundos
   actualizarUsuariosOnline();
   setInterval(actualizarUsuariosOnline, 5000);
+
+  // ---- Polling de Notificaciones y Solicitudes: cada 10 segundos ----
+  function actualizarNotificaciones() {
+    const badgeNotificaciones = document.getElementById("notificaciones-badge");
+    const badgeSolicitudes = document.getElementById("solicitudes-badge");
+
+    if (!badgeNotificaciones && !badgeSolicitudes) return;
+
+    fetch("/api/notificaciones")
+      .then((res) => {
+        if (!res.ok) return;
+        return res.json();
+      })
+      .then((data) => {
+        if (!data) return;
+
+        // Actualizar Notificaciones (Dirección)
+        if (badgeNotificaciones) {
+          if (data.notificaciones > 0) {
+            badgeNotificaciones.textContent = data.notificaciones;
+            badgeNotificaciones.style.display = "flex";
+          } else {
+            badgeNotificaciones.style.display = "none";
+          }
+        }
+
+        // Actualizar Solicitudes (Profesional)
+        if (badgeSolicitudes) {
+          if (data.solicitudes > 0) {
+            badgeSolicitudes.textContent = data.solicitudes;
+            badgeSolicitudes.style.display = "flex";
+          } else {
+            badgeSolicitudes.style.display = "none";
+          }
+        }
+      })
+      .catch((err) => console.error("Error al actualizar notificaciones:", err));
+  }
+
+  // Ejecutar inmediatamente y luego cada 10 segundos
+  actualizarNotificaciones();
+  setInterval(actualizarNotificaciones, 10000);
 });
