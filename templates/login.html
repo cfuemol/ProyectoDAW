@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block title %}Iniciar sesión{% endblock %} {% block head %}
+{% extends "base.html" %} {% block title %}Iniciar sesión{% endblock %} {% block
+head %}
 <link rel="stylesheet" href="/static/css/styles_login.css" />
 {% endblock %} {% block content %}
 <div class="login-card">
@@ -16,8 +17,14 @@
 
   <form method="post">
     <div class="form-group">
-      <label for="dni"><i class="fas fa-id-card"></i> DNI</label>
-      <input type="text" id="dni" name="dni" placeholder="Tu DNI" required />
+      <label for="dni"><i class="fas fa-id-card"></i> DNI o NIE</label>
+      <input
+        type="text"
+        id="dni"
+        name="dni"
+        placeholder="Tu DNI o NIE"
+        required
+      />
     </div>
 
     <div class="form-group">

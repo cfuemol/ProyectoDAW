@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, url_for, flash, send_file
 import os
 import io
+from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from fpdf import FPDF
 from models.database import init_db
@@ -8,8 +9,11 @@ from models.usuario import Usuario
 from models.turno import Turno
 from models.cambio import Cambio
 
+# Cargar variables de entorno desde .env
+load_dotenv()
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'dev-secret-key'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 #* Registro de usuarios activos: {dni: datetime_ultimo_ping}
 usuarios_activos = {}
