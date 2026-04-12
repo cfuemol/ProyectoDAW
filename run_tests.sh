@@ -39,7 +39,7 @@ echo -e "${GREEN}Iniciando ejecución de pruebas con pytest...${NC}"
 echo "---------------------------------------"
 
 # Ejecutar pytest
-# Usamos el path completo a pytest dentro del venv por seguridad
+# Incluye pruebas de: Admin, Dirección, Profesional y Ajuste de Salientes
 ./.venv/bin/pytest -v --disable-warnings
 
 # Capturar resultado
