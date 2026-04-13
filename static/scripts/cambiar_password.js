@@ -19,7 +19,7 @@
     const isPassValid = validarPassword(pass);
     const isConfirmValid = confirm === pass && pass !== "";
 
-    // Estilos para Password
+    //* Estilos para Password
     if (pass === "") {
       passInput.classList.remove("is-valid", "is-invalid");
     } else if (isPassValid) {
@@ -30,7 +30,7 @@
       passInput.classList.remove("is-valid");
     }
 
-    // Estilos para Confirm
+    //* Estilos para Confirm
     if (confirm === "") {
       confirmInput.classList.remove("is-valid", "is-invalid");
     } else if (isConfirmValid) {

@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const unidadAsignadaSelect = document.getElementById("unidad_asignada");
   const centroAsignadoSelect = document.getElementById("centro_asignado");
 
-  // Leer variable dinámica inyectada desde Jinja
+  //* Leer variable dinámica inyectada desde Jinja
   const form = document.querySelector("form");
   const sessionRol = form.getAttribute("data-session-rol");
 
@@ -15,13 +15,13 @@ document.addEventListener("DOMContentLoaded", function() {
   function updateAdminFields() {
     const isDireccion = sessionRol === "direccion";
 
-    // Limpiar opciones previas si no es admin
+    //* Limpiar opciones previas si no es admin
     if (rolSelect.value !== "administrador") {
       Array.from(categoriaSelect.options).forEach((opt) => {
         if (opt.value === ADMIN_CAT) opt.remove();
       });
 
-      // Si no es admin y el rol actual es Dirección, también quitamos SAS y Distrito
+      //* Si no es admin y el rol actual es Dirección, también quitamos SAS y Distrito
       Array.from(unidadAsignadaSelect.options).forEach((opt) => {
         if (opt.value === ADMIN_UNIDAD) opt.remove();
       });
@@ -33,13 +33,15 @@ document.addEventListener("DOMContentLoaded", function() {
       unidadAsignadaSelect.removeAttribute("readonly");
       centroAsignadoSelect.removeAttribute("readonly");
 
-      // Mostrar Dispositivo Apoyo Granada Sur para otros roles
+      //* Mostrar Dispositivo Apoyo Granada Sur para otros roles
       Array.from(centroAsignadoSelect.options).forEach((opt) => {
         if (opt.value === "Dispositivo Apoyo Granada Sur")
           opt.style.display = "";
       });
     } else {
-      // Es administrador
+
+      //* Categoría
+
       if (
         !Array.from(categoriaSelect.options).some(
           (opt) => opt.value === ADMIN_CAT
@@ -51,6 +53,8 @@ document.addEventListener("DOMContentLoaded", function() {
         categoriaSelect.add(opt);
       }
       categoriaSelect.value = ADMIN_CAT;
+
+      //* Unidad asignada
 
       if (
         !Array.from(unidadAsignadaSelect.options).some(
@@ -64,6 +68,8 @@ document.addEventListener("DOMContentLoaded", function() {
       }
       unidadAsignadaSelect.value = ADMIN_UNIDAD;
 
+      //* Centro asignado
+
       if (
         !Array.from(centroAsignadoSelect.options).some(
           (opt) => opt.value === ADMIN_CENTRO
@@ -76,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
       }
       centroAsignadoSelect.value = ADMIN_CENTRO;
 
-      // Ocultar Dispositivo Apoyo Granada Sur para admin
+      //* Ocultar Dispositivo Apoyo Granada Sur para admin
       Array.from(centroAsignadoSelect.options).forEach((opt) => {
         if (opt.value === "Dispositivo Apoyo Granada Sur")
           opt.style.display = "none";
@@ -87,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
       centroAsignadoSelect.setAttribute("readonly", true);
     }
 
-    // Nueva lógica Salientes
+    //* Nueva lógica Salientes
     const salienteSection = document.getElementById("saliente_section");
     const allowedCats = ["Médico/a", "DUE"];
     if (
@@ -100,8 +106,10 @@ document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("es_saliente").checked = false;
     }
 
-    handleCategoriaChange(); // Validar categoría tras cambio de rol
+    handleCategoriaChange(); //* Validar categoría tras cambio de rol
   }
+
+  //* Categorías especiales
 
   const SPECIAL_CATEGORIES = [
     "TCAE",
@@ -114,6 +122,8 @@ document.addEventListener("DOMContentLoaded", function() {
     "Matrón/a",
   ];
 
+  //* Manejo de categorías especiales
+
   function handleCategoriaChange() {
     const categoria = categoriaSelect.value;
     const isSpecial = SPECIAL_CATEGORIES.includes(categoria);
@@ -121,7 +131,9 @@ document.addEventListener("DOMContentLoaded", function() {
     if (isSpecial) {
       centroAsignadoSelect.value = "Albuñol";
       centroAsignadoSelect.setAttribute("disabled", true);
-      // Asegurar que el valor se envíe aunque esté disabled
+
+      //* Asegurar que el valor se envíe aunque esté disabled
+
       if (!document.getElementById("centro_hidden_special")) {
         const hiddenCent = document.createElement("input");
         hiddenCent.type = "hidden";
@@ -131,7 +143,9 @@ document.addEventListener("DOMContentLoaded", function() {
         form.appendChild(hiddenCent);
       }
     } else {
-      // Solo rehabilitar si no es el caso de Dispositivo Apoyo Granada Sur
+
+      //* Solo rehabilitar si no es el caso de Dispositivo Apoyo Granada Sur
+
       if (
         unidadAsignadaSelect.value !== "Dispositivo Apoyo Granada Sur" &&
         rolSelect.value !== "administrador"
@@ -144,13 +158,19 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
+  //* Evento de cambio de categoría
+
   categoriaSelect.addEventListener("change", handleCategoriaChange);
+
+  //* Manejo de dispositivo de apoyo
 
   function handleDispositivoConstraint() {
     if (unidadAsignadaSelect.value === "Dispositivo Apoyo Granada Sur") {
       centroAsignadoSelect.value = "Dispositivo Apoyo Granada Sur";
       centroAsignadoSelect.setAttribute("disabled", true);
-      // Metemos un input oculto para que el valor se envíe
+
+      //* Metemos un input oculto para que el valor se envíe
+
       if (!document.getElementById("centro_hidden")) {
         const hiddenCent = document.createElement("input");
         hiddenCent.type = "hidden";
@@ -167,6 +187,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
+  //* Evento de cambio de unidad asignada
+
   unidadAsignadaSelect.addEventListener("change", handleDispositivoConstraint);
 
   const submitBtn = document.getElementById("submit_btn");
@@ -174,6 +196,8 @@ document.addEventListener("DOMContentLoaded", function() {
   const emailInput = document.getElementById("email");
   const telefonoInput = document.getElementById("telefono");
   const inputs = form.querySelectorAll("input[required], select[required]");
+
+  //* Validación de DNI o NIE
 
   function validarDNI(value) {
     const validChars = "TRWAGMYFPDXBNJZSQVHLCKE";
@@ -214,6 +238,8 @@ document.addEventListener("DOMContentLoaded", function() {
       input.classList.remove("is-valid");
     }
   }
+
+  //* Validación de formulario
 
   function validateForm() {
     let allValid = true;
@@ -259,6 +285,6 @@ document.addEventListener("DOMContentLoaded", function() {
     validateForm();
   });
 
-  updateAdminFields(); // Inicializar
-  validateForm(); // Inicializar estado del botón
+  updateAdminFields(); //* Inicializar
+  validateForm(); //* Inicializar estado del botón
 });

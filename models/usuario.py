@@ -1,6 +1,10 @@
+#* Importar módulos necesarios de mongoengine
 from mongoengine import Document, StringField, IntField, BooleanField
+
+#* Importar módulos necesarios de la librería werkzeug.security
 from werkzeug.security import generate_password_hash, check_password_hash
 
+#* Objeto (clase) que representa un usuario
 class Usuario(Document):
     meta = {'collection': 'usuarios'}
     

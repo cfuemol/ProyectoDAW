@@ -1,3 +1,5 @@
+#* Librerías necesarias para el proyecto
+
 blinker==1.9.0
 click==8.3.1
 dnspython==2.8.0

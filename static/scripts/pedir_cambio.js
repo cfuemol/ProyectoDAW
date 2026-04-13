@@ -6,6 +6,8 @@
   miTurnoSel.addEventListener('change', validarTodo);
   compTurnoSel.addEventListener('change', validarTodo);
 
+  //* Validación de turnos
+
   function validarTodo() {
     errorDiv.style.display = 'none';
     submitBtn.disabled = true;
@@ -15,7 +17,7 @@
     if (miTurnoSel.value && compTurnoSel.value) {
       submitBtn.innerText = "⏳ Validando descanso...";
       
-      // Llamar al API de validación
+      //* Llamar al API de validación
       fetch(`/api/validar_cambio?mi_turno_id=${miTurnoSel.value}&companero_turno_id=${compTurnoSel.value}`)
         .then(res => res.json())
         .then(data => {
@@ -23,7 +25,7 @@
           if (data.valido) {
             submitBtn.disabled = false;
           } else {
-            submitBtn.disabled = true; // Asegurar que sigue bloqueado
+            submitBtn.disabled = true; //* Asegurar que sigue bloqueado
             if (data.mensaje) {
               errorDiv.innerText = data.mensaje;
               errorDiv.style.display = 'block';
@@ -37,6 +39,8 @@
         });
     }
   }
+
+  //* Carga de turnos
 
   function cargarTurnosCompanero() {
     const dni = document.getElementById('companero_dni').value;
@@ -70,5 +74,5 @@
       });
   }
 
-  // Make strictly global for inline onclick
+  //* Hacer estrictamente global para onclick en línea
   window.cargarTurnosCompanero = cargarTurnosCompanero;

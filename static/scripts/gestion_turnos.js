@@ -1,3 +1,5 @@
+  //* Filtro de cuadrante
+
   function filterQuadrant(dni) {
     const container = document.getElementById("cuadrante-container");
     const rows = document.querySelectorAll(".quadrant-row");
@@ -19,6 +21,8 @@
     container.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  //* Toggle de modificación
+
   function toggleMod(id) {
     const form = document.getElementById("form-mod-" + id);
     const label = document.getElementById("label-tipo-" + id);
@@ -29,6 +33,8 @@
     btns.style.display = isEditing ? "flex" : "none";
   }
 
+  //* Inicialización de Flatpickr
+
   function initFlatpickr(element) {
     flatpickr(element, {
       locale: "es",
@@ -38,6 +44,8 @@
       allowInput: true,
     });
   }
+
+  //* Añadir fila
 
   document.getElementById("add-row").addEventListener("click", () => {
     const tbody = document.getElementById("batch-body");
@@ -51,5 +59,7 @@
     }
     tbody.appendChild(row);
   });
+
+  //* Inicializar Flatpickr en todos los date-picker
 
   document.querySelectorAll(".date-picker").forEach(initFlatpickr);

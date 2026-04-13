@@ -9,7 +9,7 @@
 
   function updateAdminFields() {
     if (rolSelect.value === "administrador") {
-      // Es administrador
+      //* Es administrador
       if (!Array.from(categoriaSelect.options).some(opt => opt.value === ADMIN_CAT)) {
         const opt = document.createElement("option");
         opt.value = ADMIN_CAT; opt.text = ADMIN_CAT;
@@ -31,7 +31,7 @@
       }
       centroAsignadoSelect.value = ADMIN_CENTRO;
 
-      // Ocultar Dispositivo Apoyo Granada Sur para admin
+      //* Ocultar Dispositivo Apoyo Granada Sur para admin
       Array.from(centroAsignadoSelect.options).forEach(opt => {
         if (opt.value === "Dispositivo Apoyo Granada Sur") opt.style.display = "none";
       });
@@ -40,7 +40,8 @@
       unidadAsignadaSelect.setAttribute("readonly", true);
       centroAsignadoSelect.setAttribute("readonly", true);
     } else {
-      // Mostrar Dispositivo Apoyo Granada Sur para otros roles
+      
+      //* Mostrar Dispositivo Apoyo Granada Sur para otros roles
       Array.from(centroAsignadoSelect.options).forEach(opt => {
         if (opt.value === "Dispositivo Apoyo Granada Sur") opt.style.display = "";
       });
@@ -50,7 +51,7 @@
       centroAsignadoSelect.removeAttribute("readonly");
     }
 
-    // Nueva lógica Salientes
+    //* Nueva lógica Salientes
     const salienteSection = document.getElementById("saliente_section");
     const allowedCats = ["Médico/a", "DUE"];
     if (rolSelect.value === "profesional" && allowedCats.includes(categoriaSelect.value)) {

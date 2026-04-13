@@ -1,6 +1,10 @@
+#* Importar módulos necesarios de mongoengine
 from mongoengine import Document, ReferenceField, DateField, StringField, BooleanField
+
+#* Importar modelo (clase) de la base de datos
 from .usuario import Usuario
 
+#* Objeto (clase) que representa un cambio entre dos profesionales
 class Cambio(Document):
     profesional1 = ReferenceField(Usuario, required=True)
     profesional2 = ReferenceField(Usuario, required=True)

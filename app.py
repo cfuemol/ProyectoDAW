@@ -1,15 +1,32 @@
+#* Importar módulos necesarios de Flask
 from flask import Flask, render_template, request, redirect, session, url_for, flash, send_file
+
+#* Importar módulos necesarios del sistema
 import os
 import io
+
+#* Importar módulos necesarios de la librería re (para usar expresiones regulares)
+import re
+
+#* Importar módulos necesarios de la librería random (para usar funciones aleatorias)
+import random
+
+#* Importar módulos necesarios de la librería dotenv
 from dotenv import load_dotenv
+
+#* Importar módulos necesarios de la librería datetime
 from datetime import datetime, timedelta
+
+#* Importar módulos necesarios de la librería fpdf
 from fpdf import FPDF
+
+#* Importar modelos de la base de datos
 from models.database import init_db
 from models.usuario import Usuario
 from models.turno import Turno
 from models.cambio import Cambio
 
-# Cargar variables de entorno desde .env
+#* Cargar variables de entorno desde .env
 load_dotenv()
 
 app = Flask(__name__)
@@ -31,7 +48,7 @@ def requiere_rol(*roles):
             if session.get('rol') not in roles:
                 return redirect('/')
             return func(*args, **kwargs)
-        wrapper.__name__ = func.__name__ # Hace que el nombre del wrapper sea el mismo que el de la función original
+        wrapper.__name__ = func.__name__ #* Hace que el nombre del wrapper sea el mismo que el de la función original
         return wrapper
     return decorador
 
@@ -48,20 +65,19 @@ def validar_descanso_reutilizable(usuario, fecha_nueva, fecha_a_soltar):
     dia_antes = fecha_nueva - timedelta(days=1)
     dia_despues = fecha_nueva + timedelta(days=1)
     
-    # Buscamos otros turnos del usuario en esos días (ignorando el que va a soltar)
+    #* Buscamos otros turnos del usuario en esos días (ignorando el que va a soltar)
     conflictos = Turno.objects(
         profesional=usuario, 
         fecha__in=[dia_antes, dia_despues, fecha_nueva],
         tipo__in=["17h", "24h"]
     ).filter(fecha__ne=fecha_a_soltar)
 
+    #* Si hay conflictos, devuelve False y un mensaje
     if conflictos.first():
         return False, "no cumpliría el descanso obligatorio de 1 día con sus otros turnos."
     
     return True, ""
 
-import re
-import random
 
 def eliminar_saliente_previo(profesional_descanso, fecha_descanso):
     """Elimina el turno de 7h de saliente si existía para cubrir a este profesional este día."""
@@ -74,12 +90,12 @@ def asignar_saliente_automatico(turno_guardia):
         return
     
     fecha_descanso = turno_guardia.fecha + timedelta(days=1)
-    # L(0), M(1), X(2), J(3), V(4), S(5), D(6)
-    # Solo si el descanso cae de Lunes a Viernes
+    #* L(0), M(1), X(2), J(3), V(4), S(5), D(6)
+    #* Solo si el descanso cae de Lunes a Viernes
     if fecha_descanso.weekday() > 4:
         return
 
-    # Buscar candidatos salientes de la misma categoría
+    #* Buscar candidatos salientes de la misma categoría
     candidatos = Usuario.objects(
         es_saliente=True, 
         categoria=turno_guardia.profesional.categoria,
@@ -89,13 +105,13 @@ def asignar_saliente_automatico(turno_guardia):
     if not candidatos:
         return
 
-    # Equidad: Mínimo número de asignaciones
+    #* Equidad: Mínimo número de asignaciones
     min_asignaciones = candidatos.first().total_salientes
     finalistas = [u for u in candidatos if u.total_salientes == min_asignaciones]
     
     elegido = random.choice(finalistas)
     
-    # Crear el turno de 7h
+    #* Crear el turno de 7h
     nuevo_turno = Turno(
         profesional=elegido,
         fecha=fecha_descanso,
@@ -104,8 +120,12 @@ def asignar_saliente_automatico(turno_guardia):
     )
     nuevo_turno.save()
     
-    # Incrementar conteo
+    #* Incrementar conteo
     elegido.update(inc__total_salientes=1)
+
+#*-------------------------------------------------------------------------------------
+#* ENDPOINTS
+#*-------------------------------------------------------------------------------------
 
 @app.context_processor
 def inject_global_data():
@@ -125,15 +145,16 @@ def inject_global_data():
     
     try:
         if rol == 'profesional' and usuario:
-            # Solicitudes pendientes para el profesional actual
+            #* Solicitudes pendientes para el profesional actual
             solicitudes_count = Cambio.objects(profesional2=usuario, estado='pendiente').count()
         
         elif rol == 'direccion':
-            # Cambios aceptados o rechazados que el director no ha visto
+            #* Cambios aceptados o rechazados que el director no ha visto
             notificaciones_count = Cambio.objects(estado__in=['aceptado', 'rechazado'], visto_por_direccion=False).count()
     except Exception:
         pass
-        
+
+    #* Devolver los datos al contexto
     return dict(
         solicitudes_pendientes_count=solicitudes_count,
         notificaciones_pendientes_count=notificaciones_count,
@@ -154,7 +175,7 @@ def api_usuarios_online():
     #* Limpiar usuarios inactivos (más de 2 min) para mantener el diccionario limpio
     umbral = ahora - timedelta(minutes=2)
     
-    # Creamos una lista de DNIs a eliminar para no modificar el dict mientras iteramos
+    #* Creamos una lista de DNIs a eliminar para no modificar el dict mientras iteramos
     para_eliminar = [dni for dni, ts in usuarios_activos.items() if ts < umbral]
     for dni in para_eliminar:
         usuarios_activos.pop(dni, None)
@@ -175,6 +196,7 @@ def api_notificaciones():
     notificaciones_count = 0
     usuario = Usuario.objects(dni=dni).first()
     
+    #* Comprobar si hay solicitudes pendientes o notificaciones
     try:
         if rol == 'profesional' and usuario:
             solicitudes_count = Cambio.objects(profesional2=usuario, estado='pendiente').count()
@@ -182,7 +204,8 @@ def api_notificaciones():
             notificaciones_count = Cambio.objects(estado__in=['aceptado', 'rechazado'], visto_por_direccion=False).count()
     except Exception:
         pass
-        
+    
+    #* Devolver los datos al contexto
     return {
         "solicitudes": solicitudes_count,
         "notificaciones": notificaciones_count
@@ -238,19 +261,17 @@ def logout():
 #* REGISTRO DE USUARIOS (SÓLO ADMIN Y DIRECCIÓN)
 #*---------------------------------------------------
 
-#* Importar re para validaciones (expresiones regulares)
-import re
 
 def validar_dni_nie(documento):
     documento = documento.upper()
     letras = "TRWAGMYFPDXBNJZSQVHLCKE"
     
-    # NIF: 8 números + 1 letra
+    #* NIF: 8 números + 1 letra
     if re.match(r"^\d{8}[A-Z]$", documento):
         numero = int(documento[:8])
         return letras[numero % 23] == documento[8]
     
-    # NIE: X/Y/Z + 7 números + 1 letra
+    #* NIE: X/Y/Z + 7 números + 1 letra
     elif re.match(r"^[XYZ]\d{7}[A-Z]$", documento):
         mapeo = {'X': 0, 'Y': 1, 'Z': 2}
         primer_digito = mapeo[documento[0]]
@@ -286,7 +307,7 @@ def register():
             flash("El teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9.", "error")
             return redirect(url_for('register'))
             
-        # Validación de nombre y apellidos (mínimo 6 caracteres, letras y espacios internos)
+        #* Validación de nombre y apellidos (mínimo 6 caracteres, letras y espacios internos)
         name_regex = r"^[a-zA-ZÁéíóúñÑÁÉÍÓÚ][a-zA-ZÁéíóúñÑÁÉÍÓÚ\s]{4,}[a-zA-ZÁéíóúñÑÁÉÍÓÚ]$"
         if not re.match(name_regex, nombre) or not re.match(name_regex, apellidos):
             flash("El nombre y los apellidos deben tener al menos 6 caracteres, empezar/terminar con letra y solo contener letras/espacios.", "error")
@@ -300,12 +321,12 @@ def register():
                 flash("No tienes permisos para asignar este rol.", "error")
                 return redirect(url_for('register'))
             
-            # Restricción de unidad para Dirección
+            #* Restricción de unidad para Dirección
             if unidad_asignada not in ['ZBS Albuñol', 'Dispositivo Apoyo Granada Sur']:
                 flash("La unidad asignada no es válida para tu rol.", "error")
                 return redirect(url_for('register'))
             
-            # Forzado de centro si es Dispositivo
+            #* Forzado de centro si es Dispositivo
             if unidad_asignada == 'Dispositivo Apoyo Granada Sur':
                 centro_asignado = 'Dispositivo Apoyo Granada Sur'
 
@@ -340,7 +361,7 @@ def register():
                 rol=rol,
                 es_saliente=request.form.get('es_saliente') == 'on'
             )
-            # Asignar contraseña por defecto según el rol
+            #* Asignar contraseña por defecto según el rol
             default_pass = "admin" if rol == "administrador" else "admin123"
             usuario.set_password(default_pass)
             usuario.save()
@@ -360,14 +381,14 @@ def register():
 @app.route("/borrar_usuarios", methods=["GET"])
 @requiere_rol("administrador")
 def listar_usuarios():
-    # Obtener todos los usuarios para mostrarlos en la tabla
+    #* Obtener todos los usuarios para mostrarlos en la tabla
     todos_usuarios = Usuario.objects()
     return render_template("admin/borrar_usuarios.html", usuarios=todos_usuarios)
 
 @app.route("/borrar_usuario/<dni>", methods=["POST"])
 @requiere_rol("administrador")
 def borrar_usuario(dni):
-    # Evitar que el admin se borre a sí mismo
+    #* Evitar que el admin se borre a sí mismo
     if dni == session.get('dni'):
         flash("No puedes borrar tu propio usuario.", "error")
         return redirect(url_for("listar_usuarios"))
@@ -390,7 +411,7 @@ def editar_usuario(dni):
         return redirect(url_for("listar_usuarios"))
 
     if request.method == "POST":
-        # Actualizar campos
+        #* Actualizar campos
         usuario.nombre = request.form['nombre']
         usuario.apellidos = request.form['apellidos']
         usuario.categoria = request.form['categoria']
@@ -412,7 +433,7 @@ def editar_usuario(dni):
         usuario.email = request.form['email']
         usuario.es_saliente = request.form.get('es_saliente') == 'on'
         
-        # Opcional: Actualizar contraseña si se proporciona
+        #* Opcional: Actualizar contraseña si se proporciona
         new_password = request.form.get('password')
         if new_password and new_password.strip():
             usuario.set_password(new_password)
@@ -435,7 +456,7 @@ def cambiar_password():
     if request.method == "POST":
         new_password = request.form.get('new_password')
         
-        # Validación de seguridad de la contraseña
+        #* Validación de seguridad de la contraseña
         pass_regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]).{8,12}$"
         if not re.match(pass_regex, new_password):
             flash("La contraseña debe tener entre 8 y 12 caracteres, incluir una mayúscula, una minúscula, un número y un símbolo.", "error")
@@ -445,7 +466,7 @@ def cambiar_password():
         usuario.save()
         flash("Contraseña actualizada correctamente.", "success")
         
-        # Redireccionar según el rol
+        #* Redireccionar según el rol
         if usuario.rol == "administrador":
             return redirect(url_for("admin_dashboard"))
         elif usuario.rol == "direccion":
@@ -480,14 +501,14 @@ def profesional_dashboard():
 def profesional_ver_cuadrante():
     usuario = Usuario.objects(dni=session.get('dni')).first()
     
-    # Obtener mes y año de los parámetros de consulta, por defecto el actual
+    #* Obtener mes y año de los parámetros de consulta, por defecto el actual
     mes_actual = datetime.now().month
     anio_actual = datetime.now().year
     
     mes = request.args.get('mes', default=mes_actual, type=int)
     anio = request.args.get('anio', default=anio_actual, type=int)
     
-    # Filtrar turnos por el rango de fechas del mes seleccionado
+    #* Filtrar turnos por el rango de fechas del mes seleccionado
     fecha_inicio = datetime(anio, mes, 1)
     if mes == 12:
         fecha_fin = datetime(anio + 1, 1, 1)
@@ -518,7 +539,7 @@ def profesional_descargar_pdf():
     if not mes or not anio:
         return {"error": "Mes y año son requeridos."}, 400
 
-    # Rango de fechas
+    #* Rango de fechas
     fecha_inicio = datetime(anio, mes, 1)
     if mes == 12:
         fecha_fin = datetime(anio + 1, 1, 1)
@@ -532,14 +553,14 @@ def profesional_descargar_pdf():
     ).order_by('fecha')
 
     if not turnos:
-        # Si no hay turnos, enviamos un PDF con un mensaje indicativo en lugar de error
-        # para que la experiencia de usuario sea mejor que un JSON de error.
+        #* Si no hay turnos, enviamos un PDF con un mensaje indicativo en lugar de error
+        #* para que la experiencia de usuario sea mejor que un JSON de error.
         pass
 
     pdf = FPDF()
     pdf.add_page()
     
-    # Configurar fuentes y cabecera
+    #* Configurar fuentes y cabecera
     pdf.set_font("helvetica", "B", 16)
     meses_nombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
                      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
@@ -547,18 +568,18 @@ def profesional_descargar_pdf():
     pdf.cell(190, 10, titulo, align="C")
     pdf.ln(15)
 
-    # Información del profesional
+    #* Información del profesional
     pdf.set_font("helvetica", "B", 11)
     pdf.cell(190, 7, f"Profesional: {usuario.nombre} {usuario.apellidos}", ln=True)
     pdf.cell(190, 7, f"Categoría: {usuario.categoria}", ln=True)
     pdf.cell(190, 7, f"DNI: {usuario.dni}", ln=True)
     pdf.ln(10)
 
-    # Tabla de turnos
+    #* Tabla de turnos
     pdf.set_font("helvetica", "B", 10)
     pdf.set_fill_color(240, 240, 240)
     
-    # Anchos de columna: Fecha (40), Tipo (40), Centro (110)
+    #* Anchos de columna: Fecha (40), Tipo (40), Centro (110)
     pdf.cell(40, 10, "Fecha", 1, fill=True, align="C")
     pdf.cell(40, 10, "Tipo", 1, fill=True, align="C")
     pdf.cell(110, 10, "Centro de Trabajo", 1, fill=True, align="C")
@@ -575,12 +596,12 @@ def profesional_descargar_pdf():
             pdf.cell(110, 10, turno.centro_trabajo, 1, align="C")
             pdf.ln()
 
-    # Pie de página con fecha de generación
+    #* Pie de página con fecha de generación
     pdf.set_y(-15)
     pdf.set_font("helvetica", "I", 8)
     pdf.cell(0, 10, f"Generado el {datetime.now().strftime('%d/%m/%Y %H:%M')}", align="R")
 
-    # Generar el PDF en memoria
+    #* Generar el PDF en memoria
     output = io.BytesIO()
     pdf_content = pdf.output()
     output.write(pdf_content)
@@ -622,7 +643,7 @@ def gestion_turnos():
             try:
                 fecha = datetime.strptime(fecha_s, '%Y-%m-%d')
                 
-                # Validar descanso post-guardia (Día anterior 17h o 24h)
+                #* Validar descanso post-guardia (Día anterior 17h o 24h)
                 dia_anterior = fecha - timedelta(days=1)
                 turno_previo = Turno.objects(profesional=profesional, fecha=dia_anterior).first()
                 if turno_previo and turno_previo.tipo in ["17h", "24h"]:
@@ -630,7 +651,7 @@ def gestion_turnos():
                     errores += 1
                     continue
 
-                # RESTRICCIONES POR CATEGORÍA
+                #* Restricciones por categoría
                 categorias_consulta = ["TCAE", "Aux Administrativo/a", "Administrativo/a", "Técnico/a de Rayos", "Odontólogo/a", "Trabajador/a Social", "Fisioterapeuta", "Matrón/a"]
                 if profesional.categoria in categorias_consulta:
                     if fecha.weekday() in [5, 6]:
@@ -642,19 +663,19 @@ def gestion_turnos():
                         errores += 1
                         continue
 
-                # RESTRICCIÓN FIN DE SEMANA GENERAL (SÓLO 24H)
+                #* Restricción fin de semana general (sólo 24h)
                 if fecha.weekday() in [5, 6] and tipo != "24h":
                     flash(f"Error: El día {fecha.strftime('%d/%m/%Y')} es fin de semana. Solo se permiten turnos de 24h.", "error")
                     errores += 1
                     continue
 
-                # Celadores: Solo 24h
+                #* Celadores: Solo 24h
                 if profesional.categoria == "Celador/a-Conductor/a" and tipo != "24h":
                     flash(f"Error: {profesional.nombre} es Celador/a y solo puede realizar turnos de 24h.", "error")
                     errores += 1
                     continue
 
-                # NO permitir si ya existe un turno este día (REQUISITO NUEVO)
+                #* No permitir si ya existe un turno este día
                 turno_existente = Turno.objects(profesional=profesional, fecha=fecha).first()
                 if turno_existente:
                     flash(f"Error: {profesional.nombre} ya tiene un turno ({turno_existente.tipo}) asignado para el {fecha.strftime('%d/%m/%Y')}. Usa el botón de modificar si quieres cambiarlo.", "error")
@@ -669,7 +690,7 @@ def gestion_turnos():
                 turno.save()
                 exitos += 1
                 
-                # ASIGNAR SALIENTE SI ES GUARDIA (17h/24h)
+                #* Asignar saliente si es guardia (17h/24h)
                 if tipo in ["17h", "24h"]:
                     asignar_saliente_automatico(turno)
             except Exception:
@@ -680,9 +701,9 @@ def gestion_turnos():
         if errores > 0:
             flash(f"Hubo errores en {errores} turnos.", "error")
 
-    # Obtener profesionales para el select
+    #* Obtener profesionales para el select
     profesionales = Usuario.objects(rol='profesional')
-    # Obtener todos los turnos para mostrar el cuadrante
+    #* Obtener todos los turnos para mostrar el cuadrante
     turnos = Turno.objects().order_by('fecha')
     
     return render_template("direccion/gestion_turnos.html", profesionales=profesionales, turnos=turnos)
@@ -690,11 +711,11 @@ def gestion_turnos():
 @app.route("/notificaciones_cambios")
 @requiere_rol("direccion")
 def notificaciones_cambios():
-    # Obtener mes y año de los parámetros de consulta
+    #* Obtener mes y año de los parámetros de consulta
     mes = request.args.get('mes', type=int)
     anio = request.args.get('anio', type=int)
 
-    # Base de la consulta: solo cambios que ya han sido aceptados
+    #* Base de la consulta: solo cambios que ya han sido aceptados
     query_filtros = {'estado': 'aceptado'}
 
     if mes and anio:
@@ -706,10 +727,10 @@ def notificaciones_cambios():
         query_filtros['fecha_original__gte'] = fecha_inicio
         query_filtros['fecha_original__lt'] = fecha_fin
 
-    # Convertimos a lista para ejecutar la query ANTES de marcar como vistos en la DB
+    #* Convertimos a lista para ejecutar la query ANTES de marcar como vistos en la DB
     cambios = list(Cambio.objects(**query_filtros).order_by('visto_por_direccion', '-fecha_original'))
     
-    # Ahora sí marcamos como vistos los que se van a mostrar
+    #*Ahora sí marcamos como vistos los que se van a mostrar
     Cambio.objects(**query_filtros).filter(visto_por_direccion=False).update(set__visto_por_direccion=True)
     
     return render_template("direccion/notificaciones_cambios.html", 
@@ -731,6 +752,7 @@ def descargar_pdf_dia():
 
     turnos_hoy = Turno.objects(fecha=hoy)
 
+    #* Si no hay turnos, devuelve error
     if not turnos_hoy:
         return {"error": f"No hay turnos registrados para el {hoy.strftime('%d/%m/%Y')}."}, 404
 
@@ -742,7 +764,8 @@ def descargar_pdf_dia():
 
     pdf.set_font("helvetica", "B", 9)
     pdf.set_fill_color(220, 220, 220)
-    # 190 width total
+
+    #* 190 width total
     pdf.cell(40, 10, "Nombre y Apellidos", 1, fill=True, align="C")
     pdf.cell(40, 10, "Categoría", 1, fill=True, align="C")
     pdf.cell(25, 10, "Teléfono", 1, fill=True, align="C")
@@ -763,13 +786,13 @@ def descargar_pdf_dia():
         pdf.cell(70, 10, centro, 1, align="C")
         pdf.ln()
 
-    # Generar el PDF en memoria
+    #* Generar el PDF en memoria
     output = io.BytesIO()
     pdf_content = pdf.output()
     output.write(pdf_content)
     output.seek(0)
 
-    # Elimino el flash success del backend dado que Fetch gestiona sus propias notificaciones para evitar dobles mensajes si recarga.
+    #* Elimino el flash success del backend dado que Fetch gestiona sus propias notificaciones para evitar dobles mensajes si recarga.
     return send_file(
         output,
         as_attachment=True,
@@ -796,12 +819,12 @@ def api_validar_cambio():
     if not mi_turno or not companero_turno:
         return {"valido": False, "error": "Turnos no encontrados."}
 
-    # Validar P1 (quien pide el cambio)
+    #* Validar P1 (quien pide el cambio)
     es_valido, msg = validar_descanso_reutilizable(mi_turno.profesional, companero_turno.fecha, mi_turno.fecha)
     if not es_valido:
         return {"valido": False, "mensaje": f"No puedes recibir este turno: {msg}"}
 
-    # Validar P2 (el compañero)
+    #* Validar P2 (el compañero)
     es_valido_p2, msg_p2 = validar_descanso_reutilizable(companero_turno.profesional, mi_turno.fecha, companero_turno.fecha)
     if not es_valido_p2:
         return {"valido": False, "mensaje": f"Tu compañero {msg_p2}"}
@@ -818,10 +841,10 @@ def pedir_cambio_turno():
     if usuario.categoria not in categorias_permitidas:
         return redirect(url_for("profesional_dashboard"))
 
-    # Turnos propios que sean 17h o 24h
+    #* Turnos propios que sean 17h o 24h
     mis_turnos = Turno.objects(profesional=usuario, tipo__in=["17h", "24h"], fecha__gte=datetime.now()).order_by('fecha')
     
-    # Compañeros de la MISMA categoría (excluyendose a si mismo)
+    #* Compañeros de la MISMA categoría (excluyendose a si mismo)
     companeros = Usuario.objects(categoria=usuario.categoria, dni__ne=usuario.dni)
 
     if request.method == "POST":
@@ -841,7 +864,7 @@ def pedir_cambio_turno():
             flash("Error en los datos proporcionados.", "error")
             return redirect(url_for("pedir_cambio_turno"))
 
-        # Validations
+        #* Validaciones
         if companero.categoria != usuario.categoria:
             flash("Solo puedes cambiar turnos con compañeros de tu misma categoría.", "error")
             return redirect(url_for("pedir_cambio_turno"))
@@ -850,12 +873,12 @@ def pedir_cambio_turno():
             flash("Solo se pueden cambiar turnos de 17h o 24h.", "error")
             return redirect(url_for("pedir_cambio_turno"))
 
-        # Validar descanso para P1 (el que pide el cambio)
-        # P1 va a recibir el turno de P2 (fecha_final)
+        #* Validar descanso para P1 (el que pide el cambio)
+        #* P1 va a recibir el turno de P2 (fecha_final)
         dia_antes_f2 = companero_turno.fecha - timedelta(days=1)
         dia_despues_f2 = companero_turno.fecha + timedelta(days=1)
 
-        # Buscamos otros turnos de P1 en esos días (ignorando el que va a soltar)
+        #* Buscamos otros turnos de P1 en esos días (ignorando el que va a soltar)
         p1_conflictos = Turno.objects(
             profesional=usuario, 
             fecha__in=[dia_antes_f2, dia_despues_f2, companero_turno.fecha],
@@ -866,7 +889,7 @@ def pedir_cambio_turno():
             flash(f"No puedes solicitar este cambio porque no cumplirías el descanso obligatorio con tus otros turnos.", "error")
             return redirect(url_for("pedir_cambio_turno"))
 
-        # Create Request
+        #* Creación de la solicitud
         cambio = Cambio(
             profesional1=usuario,
             profesional2=companero,
@@ -885,6 +908,9 @@ def pedir_cambio_turno():
 @app.route("/api/turnos_companero/<dni>")
 @requiere_rol("profesional")
 def api_turnos_companero(dni):
+
+    #* Obtiene los turnos de un compañero
+
     companero = Usuario.objects(dni=dni).first()
     if not companero:
         return {"turnos": []}
@@ -924,7 +950,9 @@ def responder_cambio(cambio_id, accion):
         return redirect(url_for("solicitudes_cambio"))
 
     elif accion == "aceptar":
-        # Extraer turnos actuales
+
+        #* Extraer turnos actuales
+
         turno_p1 = Turno.objects(profesional=cambio.profesional1, fecha=cambio.fecha_original).first()
         turno_p2 = Turno.objects(profesional=cambio.profesional2, fecha=cambio.fecha_final).first()
         
@@ -932,32 +960,32 @@ def responder_cambio(cambio_id, accion):
             flash("Uno de los turnos ya no existe o fue modificado.", "error")
             return redirect(url_for("solicitudes_cambio"))
 
-        # Validar tiempo de descanso (1 día) para ambos.
+        #* Validar tiempo de descanso (1 día) para ambos.
         
-        # P1 va a recibir fecha_final (su turno original es fecha_original)
+        #* P1 va a recibir fecha_final (su turno original es fecha_original)
         es_valido_p1, msg_p1 = validar_descanso_reutilizable(cambio.profesional1, cambio.fecha_final, cambio.fecha_original)
         if not es_valido_p1:
             flash(f"Error: {cambio.profesional1.nombre} {msg_p1}", "error")
             return redirect(url_for("solicitudes_cambio"))
 
-        # P2 va a recibir fecha_original (su turno original es fecha_final)
+        #* P2 va a recibir fecha_original (su turno original es fecha_final)
         es_valido_p2, msg_p2 = validar_descanso_reutilizable(cambio.profesional2, cambio.fecha_original, cambio.fecha_final)
         if not es_valido_p2:
             flash(f"Error: {msg_p2}", "error")
             return redirect(url_for("solicitudes_cambio"))
 
-        # All good, do swap
+        #* Intercambio de turnos
         turno_p1.profesional = cambio.profesional2
         turno_p2.profesional = cambio.profesional1
 
-        # Limpiar salientes previos de ambos días por si acaso
+        #* Limpiar salientes previos de ambos días por si acaso
         eliminar_saliente_previo(cambio.profesional1, cambio.fecha_original + timedelta(days=1))
         eliminar_saliente_previo(cambio.profesional2, cambio.fecha_final + timedelta(days=1))
 
         turno_p1.save()
         turno_p2.save()
 
-        # Reasignar salientes según los nuevos turnos
+        #* Reasignar salientes según los nuevos turnos        
         if turno_p1.tipo in ["17h", "24h"]:
             asignar_saliente_automatico(turno_p1)
         if turno_p2.tipo in ["17h", "24h"]:
@@ -981,16 +1009,17 @@ def historico_cambios():
     if usuario.categoria not in categorias_permitidas:
         return redirect(url_for("profesional_dashboard"))
 
-    # Buscar cambios donde el usuario sea p1 o p2 y esté aceptado
-    # MongoEngine Q objects allow for complex queries, but we can just use filtering
-    # Since Q objects aren't imported, let's just do it manual or import Q
-    # We can fetch both and merge
+    #* Buscar cambios donde el usuario sea p1 o p2 y esté aceptado
+    #* Los objetos Q de MongoEngine permiten consultas complejas, pero podemos usar filtros
+    #* Como los objetos Q no están importados, lo haremos manualmente o importaremos Q
+    #* Podemos obtener ambos y fusionarlos
     cambios_p1 = list(Cambio.objects(profesional1=usuario, estado='aceptado'))
     cambios_p2 = list(Cambio.objects(profesional2=usuario, estado='aceptado'))
     
-    # Merge and format unique
+    #* Fusionar y formatear únicos
     todos_cambios = {str(c.id): c for c in (cambios_p1 + cambios_p2)}
-    # Sort backwards by original date
+
+    #* Ordenar por fecha original en orden inverso
     cambios = sorted(todos_cambios.values(), key=lambda x: x.fecha_original, reverse=True)
 
     return render_template("profesional/historico_cambios.html", usuario=usuario, cambios=cambios)
@@ -1005,7 +1034,8 @@ def borrar_turno(turno_id):
     try:
         turno = Turno.objects(id=turno_id).first()
         if turno:
-            # Si era una guardia, limpiar su saliente
+
+            #* Si era una guardia, limpiar su saliente
             if turno.tipo in ["17h", "24h"]:
                 eliminar_saliente_previo(turno.profesional, turno.fecha + timedelta(days=1))
             turno.delete()
@@ -1022,10 +1052,11 @@ def modificar_turno(turno_id):
         turno_actual = Turno.objects(id=turno_id).first()
         
         if turno_actual:
-            # RESTRICCIONES POR CATEGORÍA
+
+            #* Restricciones por categoría
             profesional = turno_actual.profesional
             
-            # Categorías de Consulta: Solo 7h y L-V
+            #* Categorías de Consulta: Solo 7h y L-V
             categorias_consulta = ["TCAE", "Aux Administrativo/a", "Administrativo/a", "Técnico/a de Rayos", "Odontólogo/a", "Trabajador/a Social", "Fisioterapeuta", "Matrón/a"]
             if profesional.categoria in categorias_consulta:
                 if turno_actual.fecha.weekday() in [5, 6]:
@@ -1035,24 +1066,25 @@ def modificar_turno(turno_id):
                     flash(f"Error: {profesional.nombre} ({profesional.categoria}) solo puede realizar turnos de 7h.", "error")
                     return redirect(url_for('gestion_turnos'))
 
-            # Validar fin de semana en modificación GENERAL (SÓLO 24H)
+            #* Validar fin de semana en modificación GENERAL (SÓLO 24H)
             if turno_actual.fecha.weekday() in [5, 6] and nuevo_tipo != "24h":
                 flash(f"Error: El día {turno_actual.fecha.strftime('%d/%m/%Y')} es fin de semana. Solo se permiten turnos de 24h.", "error")
                 return redirect(url_for('gestion_turnos'))
 
-            # Celadores: Solo 24h
+            #* Celadores: Solo 24h
             if profesional.categoria == "Celador/a-Conductor/a" and nuevo_tipo != "24h":
                 flash(f"Error: {profesional.nombre} es Celador/a y solo puede realizar turnos de 24h.", "error")
                 return redirect(url_for('gestion_turnos'))
 
-        # Limpiar saliente previo por si el tipo cambia de guardia a normal
+        #* Limpiar saliente previo por si el tipo cambia de guardia a normal
         eliminar_saliente_previo(turno_actual.profesional, turno_actual.fecha + timedelta(days=1))
         
         Turno.objects(id=turno_id).update_one(set__tipo=nuevo_tipo)
         
-        # Si el nuevo tipo es guardia, asignar nuevo saliente
+        #*Si el nuevo tipo es guardia, asignar nuevo saliente
         if nuevo_tipo in ["17h", "24h"]:
-            # Recargar el objeto para tener el tipo actualizado
+
+            #* Recargar el objeto para tener el tipo actualizado
             turno_actual.reload()
             asignar_saliente_automatico(turno_actual)
             
