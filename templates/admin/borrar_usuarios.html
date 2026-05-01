@@ -3,6 +3,10 @@
 <link rel="stylesheet" href="/static/css/styles_borrar_usuarios.css" />
 {% endblock %}
 {% block nav %}
+{% include 'includes/nav_admin.html' %}
+{% endblock %}
+
+{% block content %}
 <div class="animate-in">
   <h2>Gestión de Usuarios</h2>
   <p>Listado de todos los usuarios registrados en el sistema.</p>
@@ -63,4 +67,21 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
+
+{% if total_pages and total_pages > 1 %}
+<div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;">
+    {% if page > 1 %}
+    <a href="{{ url_for('listar_usuarios', page=page-1) }}" class="btn btn-secondary btn-sm">Anterior</a>
+    {% endif %}
+    <span style="display: flex; align-items: center; color: var(--text-secondary); font-size: 0.9rem;">
+        Página {{ page }} de {{ total_pages }}
+    </span>
+    {% if page < total_pages %}
+    <a href="{{ url_for('listar_usuarios', page=page+1) }}" class="btn btn-secondary btn-sm">Siguiente</a>
+    {% endif %}
+</div>
+{% endif %}
+
+</div>
 {% endblock %}

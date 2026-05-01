@@ -25,13 +25,13 @@ La aplicación ofrece un entorno de trabajo colaborativo con una interfaz modern
 
 #### 👤 Perfil del Administrador
 
-- **Gestión de Usuarios**: Registro, edición y eliminación de profesionales del sistema.
+- **Gestión de Usuarios**: Registro, edición y eliminación de profesionales del sistema, con listados paginados.
 - **Control de Roles**: Asignación de permisos específicos (Admin, Dirección, Profesional).
 
 #### 📋 Perfil de Dirección
 
 - **Gestión de Turnos**: Creación y modificación manual de turnos para toda la plantilla.
-- **Cuadrante Global**: Visualización completa del personal de servicio.
+- **Cuadrante Global e Individual**: Visualización completa del personal de servicio diario y acceso a los cuadrantes individuales filtrados por mes de cualquier profesional.
 - **Notificaciones**: Supervisión de los intercambios de turno realizados entre profesionales.
 - **Reportes PDF**: Generación de listados diarios de personal de guardia.
 
@@ -47,6 +47,7 @@ La aplicación ofrece un entorno de trabajo colaborativo con una interfaz modern
 - **Diseño Real-time**: Polling dinámico para actualizar notificaciones y usuarios conectados sin recargar la página.
 - **Responsive Design**: Interfaz adaptada a móviles con navegación intuitiva.
 - **Validación Automática**: Motor de reglas para asegurar descansos post-guardia y equidad en salientes.
+- **Seguridad en Memoria**: Hashing criptográfico (SHA-256) de los identificadores de sesión (DNI) para proteger el registro de usuarios activos en memoria RAM.
 
 ---
 
@@ -145,13 +146,13 @@ The application offers a collaborative work environment with a modern interface 
 
 #### 👤 Administrator Profile
 
-- **User Management**: Registration, editing, and deletion of professionals in the system.
+- **User Management**: Registration, editing, and deletion of professionals in the system, with paginated lists.
 - **Role Control**: Assignment of specific permissions (Admin, Direction, Professional).
 
 #### 📋 Direction Profile
 
 - **Shift Management**: Manual creation and modification of shifts for the entire staff.
-- **Global Schedule**: Full visualization of all on-duty personnel.
+- **Global & Individual Schedule**: Full visualization of all on-duty personnel and access to individual monthly schedules for any professional.
 - **Notifications**: Supervision of shift swaps carried out between professionals.
 - **PDF Reports**: Generation of daily lists of on-call personnel.
 
@@ -167,6 +168,7 @@ The application offers a collaborative work environment with a modern interface 
 - **Real-time Design**: Dynamic polling to update notifications and online users without refreshing the page.
 - **Responsive Design**: Mobile-adapted interface with intuitive navigation.
 - **Automatic Validation**: Rules engine to ensure post-guard rest and equity in relief assignments (salientes).
+- **In-Memory Security**: Cryptographic hashing (SHA-256) of session identifiers (DNI) to protect the active users register in RAM.
 
 ---
 

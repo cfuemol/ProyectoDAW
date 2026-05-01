@@ -20,6 +20,9 @@ from datetime import datetime, timedelta
 #* Importar módulos necesarios de la librería fpdf
 from fpdf import FPDF
 
+#* Importar módulos necesarios de la librería hashlib
+import hashlib
+
 #* Importar modelos de la base de datos
 from models.database import init_db
 from models.usuario import Usuario
@@ -137,7 +140,8 @@ def inject_global_data():
     dni = session.get('dni')
     
     #* Registrar actividad del usuario actual
-    usuarios_activos[dni] = datetime.utcnow()
+    dni_hash = hashlib.sha256(dni.encode()).hexdigest()
+    usuarios_activos[dni_hash] = datetime.utcnow()
 
     solicitudes_count = 0
     notificaciones_count = 0
@@ -170,7 +174,8 @@ def api_usuarios_online():
     
     #* Refrescar el timestamp del usuario que hace el ping
     ahora = datetime.utcnow()
-    usuarios_activos[session['dni']] = ahora
+    dni_hash = hashlib.sha256(session['dni'].encode()).hexdigest()
+    usuarios_activos[dni_hash] = ahora
 
     #* Limpiar usuarios inactivos (más de 2 min) para mantener el diccionario limpio
     umbral = ahora - timedelta(minutes=2)
@@ -252,8 +257,10 @@ def login():
 def logout():
     #* Eliminar al usuario del registro de activos al cerrar sesión
     dni = session.get('dni')
-    if dni and dni in usuarios_activos:
-        del usuarios_activos[dni]
+    if dni:
+        dni_hash = hashlib.sha256(dni.encode()).hexdigest()
+        if dni_hash in usuarios_activos:
+            del usuarios_activos[dni_hash]
     session.clear()
     return redirect("/")
 
@@ -381,9 +388,20 @@ def register():
 @app.route("/borrar_usuarios", methods=["GET"])
 @requiere_rol("administrador")
 def listar_usuarios():
-    #* Obtener todos los usuarios para mostrarlos en la tabla
-    todos_usuarios = Usuario.objects()
-    return render_template("admin/borrar_usuarios.html", usuarios=todos_usuarios)
+    #* Paginación de usuarios
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    offset = (page - 1) * per_page
+    
+    total_usuarios = Usuario.objects().count()
+    total_pages = (total_usuarios + per_page - 1) // per_page
+    
+    todos_usuarios = Usuario.objects().skip(offset).limit(per_page)
+    
+    return render_template("admin/borrar_usuarios.html", 
+                           usuarios=todos_usuarios,
+                           page=page,
+                           total_pages=total_pages)
 
 @app.route("/borrar_usuario/<dni>", methods=["POST"])
 @requiere_rol("administrador")
@@ -737,6 +755,120 @@ def notificaciones_cambios():
                            cambios=cambios, 
                            mes_sel=mes, 
                            anio_sel=anio)
+
+@app.route("/direccion/ver_turnos_profesional")
+@requiere_rol("direccion")
+def direccion_ver_turnos_profesional():
+    profesionales = Usuario.objects(rol='profesional').order_by('nombre')
+    
+    dni_sel = request.args.get('dni')
+    mes_sel = request.args.get('mes', default=datetime.now().month, type=int)
+    anio_sel = request.args.get('anio', default=datetime.now().year, type=int)
+    
+    turnos = []
+    usuario_sel = None
+    
+    if dni_sel:
+        usuario_sel = Usuario.objects(dni=dni_sel).first()
+        if usuario_sel:
+            fecha_inicio = datetime(anio_sel, mes_sel, 1)
+            if mes_sel == 12:
+                fecha_fin = datetime(anio_sel + 1, 1, 1)
+            else:
+                fecha_fin = datetime(anio_sel, mes_sel + 1, 1)
+                
+            turnos = Turno.objects(
+                profesional=usuario_sel,
+                fecha__gte=fecha_inicio,
+                fecha__lt=fecha_fin
+            ).order_by('fecha')
+            
+    return render_template("direccion/ver_turnos_profesional.html",
+                           profesionales=profesionales,
+                           usuario_sel=usuario_sel,
+                           dni_sel=dni_sel,
+                           turnos=turnos,
+                           mes_sel=mes_sel,
+                           anio_sel=anio_sel)
+
+@app.route("/direccion/descargar_pdf_profesional")
+@requiere_rol("direccion")
+def direccion_descargar_pdf_profesional():
+    dni = request.args.get('dni')
+    mes = request.args.get('mes', type=int)
+    anio = request.args.get('anio', type=int)
+    
+    if not dni or not mes or not anio:
+        return {"error": "DNI, Mes y año son requeridos."}, 400
+        
+    usuario = Usuario.objects(dni=dni).first()
+    if not usuario:
+        return {"error": "Usuario no encontrado."}, 404
+
+    fecha_inicio = datetime(anio, mes, 1)
+    if mes == 12:
+        fecha_fin = datetime(anio + 1, 1, 1)
+    else:
+        fecha_fin = datetime(anio, mes + 1, 1)
+        
+    turnos = Turno.objects(
+        profesional=usuario,
+        fecha__gte=fecha_inicio,
+        fecha__lt=fecha_fin
+    ).order_by('fecha')
+
+    pdf = FPDF()
+    pdf.add_page()
+    
+    pdf.set_font("helvetica", "B", 16)
+    meses_nombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+                     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    titulo = f"Turnos - {meses_nombres[mes-1]} {anio}"
+    pdf.cell(190, 10, titulo, align="C")
+    pdf.ln(15)
+
+    pdf.set_font("helvetica", "B", 11)
+    pdf.cell(190, 7, f"Profesional: {usuario.nombre} {usuario.apellidos}", ln=True)
+    pdf.cell(190, 7, f"Categoría: {usuario.categoria}", ln=True)
+    pdf.cell(190, 7, f"DNI: {usuario.dni}", ln=True)
+    pdf.ln(10)
+
+    pdf.set_font("helvetica", "B", 10)
+    pdf.set_fill_color(240, 240, 240)
+    
+    pdf.cell(40, 10, "Fecha", 1, fill=True, align="C")
+    pdf.cell(40, 10, "Tipo", 1, fill=True, align="C")
+    pdf.cell(110, 10, "Centro de Trabajo", 1, fill=True, align="C")
+    pdf.ln()
+
+    pdf.set_font("helvetica", "", 10)
+    if not turnos:
+        pdf.cell(190, 10, "No hay turnos registrados para este mes.", 1, align="C")
+    else:
+        for turno in turnos:
+            fecha_str = turno.fecha.strftime('%d/%m/%Y')
+            pdf.cell(40, 10, fecha_str, 1, align="C")
+            pdf.cell(40, 10, turno.tipo, 1, align="C")
+            pdf.cell(110, 10, turno.centro_trabajo, 1, align="C")
+            pdf.ln()
+
+    pdf.set_y(-15)
+    pdf.set_font("helvetica", "I", 8)
+    pdf.cell(0, 10, f"Generado el {datetime.now().strftime('%d/%m/%Y %H:%M')}", align="R")
+
+    output = io.BytesIO()
+    pdf_content = pdf.output()
+    output.write(pdf_content)
+    output.seek(0)
+
+    nombre_archivo = f"turnos_{usuario.nombre}_{meses_nombres[mes-1]}_{anio}.pdf".replace(" ", "_")
+    
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name=nombre_archivo,
+        mimetype="application/pdf"
+    )
 
 @app.route("/descargar_pdf_dia")
 @requiere_rol("direccion", "profesional")

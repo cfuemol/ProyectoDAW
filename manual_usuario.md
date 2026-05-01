@@ -106,7 +106,17 @@ Podrá visualizar el cuadrante de todos los profesionales y realizar asignacione
 
 ![Imagen7](./static/images/imagen_7.png)
 
-#### 3.3 Notificaciones de Cambios
+#### 3.3 Ver Turnos por Profesional
+
+En la barra de navegación dispone de la opción **Ver Turnos**. Esta herramienta permite:
+
+- Seleccionar un profesional específico de un listado.
+- Filtrar sus turnos por un mes y año concretos.
+- Descargar un reporte en PDF de su cuadrante mensual individual.
+
+![Imagen7_1](./static/images/imagen_7_1.png)
+
+#### 3.4 Notificaciones de Cambios
 
 En esta sección podrá ver todos los intercambios realizados entre profesionales.
 
@@ -120,7 +130,7 @@ En esta sección podrá ver todos los intercambios realizados entre profesionale
 El Administrador es el encargado de mantener la base de datos de personal:
 
 - **Alta de Usuario**: Introducir nuevos trabajadores asignando su categoría y unidad.
-- **Edición**: Modificar datos de contacto o cambiar roles de usuario.
+- **Edición y Borrado**: Modificar datos de contacto, cambiar roles o eliminar usuarios de forma segura utilizando un listado paginado para facilitar su búsqueda.
 
 ---
 
@@ -230,7 +240,17 @@ You will be able to view the schedule of all professionals and make manual assig
 
 ![Image7](./static/images/imagen_7.png)
 
-#### 3.3 Change Notifications
+#### 3.3 View Shifts by Professional
+
+In the navigation bar, you have the **View Shifts** option. This tool allows you to:
+
+- Select a specific professional from a list.
+- Filter their shifts by a specific month and year.
+- Download a PDF report of their individual monthly schedule.
+
+![Imagen7_1](./static/images/imagen_7_1.png)
+
+#### 3.4 Change Notifications
 
 In this section, you can see all swaps carried out between professionals.
 
@@ -244,7 +264,7 @@ In this section, you can see all swaps carried out between professionals.
 The Administrator is in charge of maintaining the personnel database:
 
 - **User Registration**: Introduce new workers by assigning their category and unit.
-- **Editing**: Modify contact data or change user roles.
+- **Editing and Deletion**: Modify contact data, change roles, or securely delete users using a paginated list to facilitate searching.
 
 ---
 

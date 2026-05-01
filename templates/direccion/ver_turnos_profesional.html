@@ -1,0 +1,157 @@
+{% extends "base.html" %} {% block title %}Ver Turnos por Profesional{% endblock %} {% block head %}
+<link rel="stylesheet" href="/static/css/styles_cuadrante.css" />
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+{% endblock %} {% block nav %}
+{% include 'includes/nav_direccion.html' %}
+{% endblock %} {% block content %}
+<div class="animate-in">
+  <h2>Turnos por Profesional</h2>
+  <p>Consulta el cuadrante de cualquier profesional en un mes específico.</p>
+
+  <!-- Filtros -->
+  <form method="GET" action="/direccion/ver_turnos_profesional" class="filter-container" style="
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: rgba(128, 128, 128, 0.05);
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+      flex-wrap: wrap;
+    ">
+    
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <label for="dni" style="margin: 0; font-weight: 600;">Profesional:</label>
+      <select name="dni" id="dni" style="margin: 0; padding: 8px 15px; min-width: 250px;" required>
+        <option value="">Selecciona profesional...</option>
+        {% for p in profesionales %}
+        <option value="{{ p.dni }}" {% if dni_sel == p.dni %}selected{% endif %}>
+          {{ p.nombre }} {{ p.apellidos }} ({{ p.categoria }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <label for="month-picker" style="margin: 0; font-weight: 600;">Mes:</label>
+      <input type="hidden" name="mes" id="mes_input" value="{{ mes_sel }}">
+      <input type="hidden" name="anio" id="anio_input" value="{{ anio_sel }}">
+      <input
+        type="text"
+        id="month-picker"
+        style="width: auto; margin: 0; padding: 8px 15px; min-width: 150px;"
+        placeholder="Selecciona Mes"
+        data-default-date="{{ '%02d' % mes_sel }}/{{ anio_sel }}"
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="margin: 0; padding: 8px 15px;">
+      <i class="fas fa-search"></i> Consultar
+    </button>
+    
+    {% if usuario_sel %}
+    <a
+      href="/direccion/descargar_pdf_profesional?dni={{ dni_sel }}&mes={{ mes_sel }}&anio={{ anio_sel }}"
+      class="btn-pdf-mensual"
+      style="margin-left: auto;"
+    >
+      📄 Descargar PDF
+    </a>
+    {% endif %}
+  </form>
+
+  {% if usuario_sel %}
+    <div style="margin-bottom: 15px;">
+      <h3 style="margin: 0;">Cuadrante de {{ usuario_sel.nombre }} {{ usuario_sel.apellidos }}</h3>
+      <p style="color: var(--text-secondary); margin-top: 5px; font-size: 0.9rem;">
+        {{ usuario_sel.categoria }} - {{ usuario_sel.centro_asignado }}
+      </p>
+    </div>
+
+    {% if turnos|length > 0 %}
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha del Turno</th>
+            <th>Tipo</th>
+            <th>Centro / Ubicación</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for turno in turnos %}
+          <tr>
+            <td data-label="Fecha" style="font-weight: 500;">{{ turno.fecha.strftime('%d/%m/%Y') }}</td>
+            <td data-label="Tipo">
+              <span class="badge badge-{{ turno.tipo }}">{{ turno.tipo }}</span>
+            </td>
+            <td data-label="Centro">
+              {% if 'Urgencias' in turno.centro_trabajo and '+' in turno.centro_trabajo %}
+              <span class="location-badge location-dual">{{ turno.centro_trabajo }}</span>
+              {% elif 'Urgencias' in turno.centro_trabajo %}
+              <span class="location-badge location-urgencias">{{ turno.centro_trabajo }}</span>
+              {% elif 'Saliente' in turno.centro_trabajo %}
+              <span class="location-badge location-saliente">{{ turno.centro_trabajo }}</span>
+              {% elif 'Vaciones' in turno.centro_trabajo or 'Vacaciones' in turno.centro_trabajo %}
+              <span class="location-badge" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">
+                {{ turno.centro_trabajo }}
+              </span>
+              {% else %}
+              <span class="location-badge location-centro">{{ turno.centro_trabajo }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="form-container" style="text-align: center; padding: 40px">
+      <p style="color: var(--text-secondary)">
+        No hay turnos registrados para este mes.
+      </p>
+    </div>
+    {% endif %}
+  {% else %}
+    <div class="form-container" style="text-align: center; padding: 40px; border: 1px dashed var(--panel-border);">
+      <p style="color: var(--text-secondary); margin: 0;">
+        <i class="fas fa-hand-pointer" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+        Selecciona un profesional y un mes para visualizar su cuadrante.
+      </p>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const pickerInput = document.getElementById("month-picker");
+    const defaultDateVal = pickerInput.getAttribute("data-default-date");
+    const mesInput = document.getElementById("mes_input");
+    const anioInput = document.getElementById("anio_input");
+
+    flatpickr("#month-picker", {
+      locale: "es",
+      plugins: [
+        new monthSelectPlugin({
+          shorthand: true,
+          dateFormat: "m/Y",
+          altFormat: "F Y",
+        }),
+      ],
+      defaultDate: defaultDateVal,
+      onChange: function (selectedDates, dateStr, instance) {
+        if (selectedDates.length > 0) {
+          const date = selectedDates[0];
+          mesInput.value = date.getMonth() + 1;
+          anioInput.value = date.getFullYear();
+        }
+      },
+    });
+  });
+</script>
+{% endblock %}
