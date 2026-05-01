@@ -169,7 +169,7 @@ ProyectoDAW/
 
 - **Raíz del Proyecto**: Contiene los archivos de configuración global para el despliegue Docker y la gestión de dependencias.
 - **models/**: Implementa la lógica de persistencia. Se utiliza MongoEngine para mapear objetos Python a documentos de MongoDB, permitiendo consultas paginadas eficientes (ej. listados de usuarios).
-- **static/**: Organizado en estilos (CSS) que siguen el patrón Glassmorphism y scripts (JS) que manejan la interactividad en tiempo real (polling).
+- **static/**: Organizado en estilos (CSS) que siguen el patrón Glassmorphism y scripts (JS) que manejan la interactividad en tiempo real (polling y actualización dinámica del DOM en la gestión de turnos).
 - **templates/**: Dividido por áreas de seguridad (Admin, Dirección, Profesional) para garantizar la integridad de los permisos.
 - **docker/**: Aísla la configuración de red y servidor, permitiendo un entorno de "infraestructura como código".
 - **tests/**: Validaciones automatizadas de todas las reglas de negocio críticas, asegurando la robustez del sistema ante cambios.
@@ -474,7 +474,7 @@ ProyectoDAW/
 
 - **Project Root**: Contains global configuration files for Docker deployment and dependency management.
 - **models/**: Implements persistence logic. MongoEngine is used to map Python objects to MongoDB documents, allowing for efficient paginated queries (e.g., user lists).
-- **static/**: Organized into styles (CSS) following the Glassmorphism pattern and scripts (JS) handling real-time interactivity (polling).
+- **static/**: Organized into styles (CSS) following the Glassmorphism pattern and scripts (JS) handling real-time interactivity (polling and dynamic DOM updates in shift management).
 - **templates/**: Divided by security areas (Admin, Management, Professional) to ensure permission integrity.
 - **docker/**: Isolates network and server configuration, allowing for "infrastructure as code."
 - **tests/**: Automated validations of all critical business rules, ensuring system robustness against changes.

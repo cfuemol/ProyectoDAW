@@ -30,7 +30,7 @@ La aplicación ofrece un entorno de trabajo colaborativo con una interfaz modern
 
 #### 📋 Perfil de Dirección
 
-- **Gestión de Turnos**: Creación y modificación manual de turnos para toda la plantilla.
+- **Gestión de Turnos**: Creación y modificación manual de turnos para toda la plantilla, con previsualización dinámica en tiempo real del cuadrante al añadir o eliminar asignaciones.
 - **Cuadrante Global e Individual**: Visualización completa del personal de servicio diario y acceso a los cuadrantes individuales filtrados por mes de cualquier profesional.
 - **Notificaciones**: Supervisión de los intercambios de turno realizados entre profesionales.
 - **Reportes PDF**: Generación de listados diarios de personal de guardia.
@@ -151,7 +151,7 @@ The application offers a collaborative work environment with a modern interface 
 
 #### 📋 Direction Profile
 
-- **Shift Management**: Manual creation and modification of shifts for the entire staff.
+- **Shift Management**: Manual creation and modification of shifts for the entire staff, featuring dynamic real-time schedule previews when adding or removing assignments.
 - **Global & Individual Schedule**: Full visualization of all on-duty personnel and access to individual monthly schedules for any professional.
 - **Notifications**: Supervision of shift swaps carried out between professionals.
 - **PDF Reports**: Generation of daily lists of on-call personnel.

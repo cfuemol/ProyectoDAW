@@ -45,11 +45,32 @@
     });
   }
 
-  //* Añadir fila
+  //* Plantilla de filas
 
+  let rowTemplate = null;
+  document.addEventListener("DOMContentLoaded", () => {
+    const firstRow = document.querySelector("#batch-body tr");
+    if (firstRow) {
+      rowTemplate = firstRow.cloneNode(true);
+      // Limpiar valores en el template
+      rowTemplate.querySelector("select[name='profesional_dni[]']").value = "";
+      rowTemplate.querySelector("select[name='tipo[]']").value = "7h";
+    }
+  });
+
+  //* Añadir fila
   document.getElementById("add-row").addEventListener("click", () => {
     const tbody = document.getElementById("batch-body");
-    const row = tbody.querySelector("tr").cloneNode(true);
+    let row;
+    
+    if (tbody.lastElementChild) {
+       row = tbody.lastElementChild.cloneNode(true);
+    } else if (rowTemplate) {
+       row = rowTemplate.cloneNode(true);
+    } else {
+       return;
+    }
+    
     const dateInput = row.querySelector(".date-picker");
     if (dateInput) {
       const container = dateInput.parentNode;
@@ -58,7 +79,32 @@
       initFlatpickr(container.querySelector(".date-picker"));
     }
     tbody.appendChild(row);
+    
+    //* Actualizar el cuadrante con el profesional de la nueva fila
+    const select = row.querySelector("select[name='profesional_dni[]']");
+    if (select) {
+      filterQuadrant(select.value);
+    }
   });
+
+  //* Eliminar fila (función global para ser llamada desde el HTML)
+  window.removeRow = function(btn) {
+    const tr = btn.closest("tr");
+    const tbody = document.getElementById("batch-body");
+    tr.remove();
+
+    const remainingRows = tbody.querySelectorAll("tr");
+    if (remainingRows.length === 0) {
+      filterQuadrant(""); // Oculta el cuadrante si no quedan filas
+    } else {
+      //* Muestra el cuadrante de la última fila restante
+      const lastRow = remainingRows[remainingRows.length - 1];
+      const select = lastRow.querySelector("select[name='profesional_dni[]']");
+      if (select) {
+        filterQuadrant(select.value);
+      }
+    }
+  };
 
   //* Inicializar Flatpickr en todos los date-picker
 

@@ -102,7 +102,7 @@ Se podrá dar de alta a nuevos usuarios.
 
 #### 3.2 Gestión de Turnos
 
-Podrá visualizar el cuadrante de todos los profesionales y realizar asignaciones manuales para cubrir las necesidades del servicio.
+Podrá visualizar el cuadrante de todos los profesionales y realizar asignaciones manuales para cubrir las necesidades del servicio. Al añadir o eliminar filas durante la asignación múltiple, el sistema actualizará dinámicamente en tiempo real la previsualización del cuadrante inferior para mostrar los turnos del profesional seleccionado, agilizando la planificación.
 
 ![Imagen7](./static/images/imagen_7.png)
 
@@ -236,7 +236,7 @@ New users can be registered.
 
 #### 3.2 Shift Management
 
-You will be able to view the schedule of all professionals and make manual assignments to cover service needs.
+You will be able to view the schedule of all professionals and make manual assignments to cover service needs. As a new feature, when adding or deleting rows during bulk assignments, the system will dynamically update the bottom schedule preview in real-time to show the selected professional's shifts, streamlining the planning process.
 
 ![Image7](./static/images/imagen_7.png)
 
